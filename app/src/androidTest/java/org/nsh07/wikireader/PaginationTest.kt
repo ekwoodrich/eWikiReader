@@ -106,4 +106,45 @@ class PaginationTest {
         assertEquals(anchor, Pair(article.readerState.block, article.readerState.offset))
     }
 
+    @Test fun volumeKeysRespectPreferenceWhilePageKeysRemainAvailable() {
+        val article = HomeSubscreen.Article(title = "Volume key fixture", extract = listOf(
+            listOf(AnnotatedString("Reading text for hardware key verification. ".repeat(400)))
+        ))
+        var volumeTurns by mutableStateOf(false)
+        compose.setContent {
+            MaterialTheme {
+                PagedArticleContent(article, PreferencesState(pagedReading = true, volumePageTurns = volumeTurns),
+                    PaddingValues(0.dp), {}, {}, { _, _ -> })
+            }
+        }
+        compose.waitUntil(30000) { compose.onAllNodesWithTag("reader-page").fetchSemanticsNodes().isNotEmpty() }
+        val reader = compose.onNodeWithTag("reader-page")
+        val initialOffset = article.readerState.offset
+        reader.performKeyInput {
+            keyDown(androidx.compose.ui.input.key.Key.VolumeDown)
+            keyUp(androidx.compose.ui.input.key.Key.VolumeDown)
+        }
+        compose.runOnIdle { assertEquals(initialOffset, article.readerState.offset) }
+        reader.performKeyInput {
+            keyDown(androidx.compose.ui.input.key.Key.VolumeUp)
+            keyUp(androidx.compose.ui.input.key.Key.VolumeUp)
+        }
+        compose.runOnIdle { assertEquals(initialOffset, article.readerState.offset) }
+        reader.performKeyInput {
+            keyDown(androidx.compose.ui.input.key.Key.PageDown)
+            keyUp(androidx.compose.ui.input.key.Key.PageDown)
+        }
+        compose.waitForIdle()
+        assertTrue(article.readerState.offset > initialOffset || article.readerState.block > 0)
+        val pageKeyOffset = article.readerState.offset
+        compose.runOnIdle { volumeTurns = true }
+        compose.waitForIdle()
+        reader.performKeyInput {
+            keyDown(androidx.compose.ui.input.key.Key.VolumeDown)
+            keyUp(androidx.compose.ui.input.key.Key.VolumeDown)
+        }
+        compose.waitForIdle()
+        assertTrue(article.readerState.offset > pageKeyOffset || article.readerState.block > 0)
+    }
+
 }

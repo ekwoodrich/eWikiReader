@@ -19,6 +19,7 @@ sealed class SettingsAction {
     data class SaveSearchHistory(val value: Boolean) : SettingsAction()
 
     data class SavePagedReading(val value: Boolean) : SettingsAction()
+    data class SaveVolumePageTurns(val value: Boolean) : SettingsAction()
 
     object ResetSettings : SettingsAction()
 }

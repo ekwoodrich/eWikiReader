@@ -138,6 +138,8 @@
     <string name="historyDesc">Save article browsing history</string>
     <string name="paged_reading" tools:ignore="MissingTranslation">Paged reading</string>
     <string name="paged_reading_description" tools:ignore="MissingTranslation">Read articles one page at a time with Previous and Next. Sections stay expanded; tables reflow as rows. Scrolling remains available when disabled.</string>
+    <string name="volume_page_turns" tools:ignore="MissingTranslation">Use volume buttons to turn pages</string>
+    <string name="volume_page_turns_description" tools:ignore="MissingTranslation">Volume up goes to the previous page; volume down goes to the next page.</string>
     <string name="reader_previous" tools:ignore="MissingTranslation">Previous</string>
     <string name="reader_next" tools:ignore="MissingTranslation">Next</string>
     <string name="reader_progress" tools:ignore="MissingTranslation">%1$d / %2$d</string>

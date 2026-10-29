@@ -250,6 +250,15 @@ fun SettingsScreen(
                 string.paged_reading_description,
                 SettingsAction::SavePagedReading
             ),
+            *if (preferencesState.pagedReading) arrayOf(
+                SettingsSwitchItem(
+                    preferencesState.volumePageTurns,
+                    R.drawable.volume_up,
+                    string.volume_page_turns,
+                    string.volume_page_turns_description,
+                    SettingsAction::SaveVolumePageTurns
+                )
+            ) else emptyArray(),
             SettingsSwitchItem(
                 preferencesState.blackTheme,
                 R.drawable.contrast,

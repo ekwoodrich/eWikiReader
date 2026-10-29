@@ -118,8 +118,10 @@ fun PagedArticleContent(
     Column(modifier.fillMaxSize().padding(insets).padding(bottom = if (state.fullScreen) 0.dp else 88.dp)
         .focusRequester(focus).onPreviewKeyEvent {
             val delta = when (it.key) {
-                Key.PageDown, Key.VolumeDown -> 1
-                Key.PageUp, Key.VolumeUp -> -1
+                Key.PageDown -> 1
+                Key.PageUp -> -1
+                Key.VolumeDown -> if (preferences.volumePageTurns) 1 else 0
+                Key.VolumeUp -> if (preferences.volumePageTurns) -1 else 0
                 else -> 0
             }
             if (delta != 0 && ready && keysEnabled && textToolbar.status != TextToolbarStatus.Shown) {

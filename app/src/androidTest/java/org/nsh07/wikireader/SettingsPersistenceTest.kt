@@ -25,4 +25,17 @@ class SettingsPersistenceTest {
         compose.runOnUiThread { compose.activity.settingsViewModel.onAction(SettingsAction.SavePagedReading(true)) }
         compose.waitUntil(10000) { compose.activity.settingsViewModel.preferencesState.value.pagedReading }
     }
+
+    @Test fun volumePageTurnSettingPersistsAndResets() {
+        compose.waitUntil(30000) { compose.activity.viewModel.appStatus.value == org.nsh07.wikireader.data.AppStatus.INITIALIZED }
+        val repository = (compose.activity.application as WikiReaderApplication).container.appPreferencesRepository
+        compose.runOnUiThread { compose.activity.settingsViewModel.onAction(SettingsAction.SaveVolumePageTurns(false)) }
+        compose.waitUntil(10000) { !compose.activity.settingsViewModel.preferencesState.value.volumePageTurns }
+        assertEquals(false, runBlocking { repository.readBooleanPreference("volume-page-turns") })
+        compose.activityRule.scenario.recreate()
+        compose.waitUntil(10000) { !compose.activity.settingsViewModel.preferencesState.value.volumePageTurns }
+        compose.runOnUiThread { compose.activity.settingsViewModel.onAction(SettingsAction.ResetSettings) }
+        compose.waitUntil(10000) { compose.activity.settingsViewModel.preferencesState.value.volumePageTurns }
+        assertNull(runBlocking { repository.readBooleanPreference("volume-page-turns") })
+    }
 }

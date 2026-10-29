@@ -118,3 +118,13 @@ Final APK: `app/build/outputs/apk/debug/app-debug.apk` (local debug signing, app
 - [Emulator normal controls](verification/emulator-controls.png).
 
 Screenshots show the [Wikipedia E Ink article](https://en.wikipedia.org/wiki/E_Ink). Article/diagram attribution and media-license details are available from that article and its linked file-description pages. Screenshots are unmodified framebuffer captures except for removal of the Boox capture command's non-PNG byte prefix.
+
+## Volume-button page-turn option follow-up
+
+The paged reader now has a persisted **Use volume buttons to turn pages** switch, displayed under Settings only while Paged reading is enabled. It defaults to on to preserve the reader's prior volume-key behavior. Volume Up turns to the previous page and Volume Down to the next page; disabling the option leaves Page Up/Page Down keyboard navigation active. The setting is stored as `volume-page-turns` and returns to on when settings are reset.
+
+Verification for this follow-up: the app, instrumentation APK, and JVM unit-test task built successfully. All 14 JVM tests passed. The focused volume-key and settings-persistence instrumentation tests passed on both the API-30 emulator and the physical Boox (2 tests per device). Tests cover enabled/disabled volume-key routing, Page Up/Down while volume turning is disabled, saving/reloading the preference, and reset behavior. On the Boox, `adb shell input keyevent 25` advanced the full-screen article from `1 / 17` to `2 / 17`; `adb shell input keyevent 24` returned to `1 / 17`. This verifies Android input routing on the physical device; it does not claim a mechanical button press. The device remains on the full-screen article with volume turning enabled.
+
+Evidence: [Boox settings switch](verification/boox-volume-page-turn-setting.png), [Boox page after Volume Down](verification/boox-volume-page-turn-physical.png), [emulator focused test result](verification/volume-key-emulator.txt), and [Boox focused test result](verification/volume-key-boox.txt).
+
+The updated local debug APK is `app/build/outputs/apk/debug/app-debug.apk`, SHA-256 `d172ed40183ee1a0a0acb11c6e261c2fbf525444a28c26431350c2acebbc55bc`.

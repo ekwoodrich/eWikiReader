@@ -57,6 +57,7 @@ class SettingsViewModel(
             val imageBackground = appPreferencesRepository.readBooleanPreference("image-background")
                 ?: appPreferencesRepository.saveBooleanPreference("image-background", false)
             val pagedReading = appPreferencesRepository.readBooleanPreference("paged-reading") ?: false
+            val volumePageTurns = appPreferencesRepository.readBooleanPreference("volume-page-turns") ?: true
             val immersiveMode = appPreferencesRepository.readBooleanPreference("immersive-mode")
                 ?: appPreferencesRepository.saveBooleanPreference("immersive-mode", true)
             val renderMath = appPreferencesRepository.readBooleanPreference("render-math")
@@ -78,6 +79,7 @@ class SettingsViewModel(
                     imageBackground = imageBackground,
                     immersiveMode = immersiveMode,
                     pagedReading = pagedReading,
+                    volumePageTurns = volumePageTurns,
                     lang = lang,
                     renderMath = renderMath,
                     searchHistory = searchHistory,
@@ -202,6 +204,11 @@ class SettingsViewModel(
             is SettingsAction.SavePagedReading -> viewModelScope.launch {
                 appPreferencesRepository.saveBooleanPreference("paged-reading", action.value)
                 preferencesStateMutableFlow.update { it.copy(pagedReading = action.value) }
+            }
+
+            is SettingsAction.SaveVolumePageTurns -> viewModelScope.launch {
+                appPreferencesRepository.saveBooleanPreference("volume-page-turns", action.value)
+                preferencesStateMutableFlow.update { it.copy(volumePageTurns = action.value) }
             }
 
             is SettingsAction.ResetSettings -> viewModelScope.launch {
