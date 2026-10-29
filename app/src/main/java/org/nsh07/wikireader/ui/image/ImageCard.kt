@@ -51,6 +51,7 @@ fun SharedTransitionScope.ImageCard(
     val contentScale = ContentScale.Crop
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
+            .fitDisplay(context)
             .data(photo?.source)
             .crossfade(true)
             .build(),

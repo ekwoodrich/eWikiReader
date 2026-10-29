@@ -9,6 +9,8 @@ import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.svg.SvgDecoder
+import coil3.request.maxBitmapSize
+import coil3.size.Size
 import okhttp3.OkHttpClient
 import org.nsh07.wikireader.data.AppContainer
 import org.nsh07.wikireader.data.DefaultAppContainer
@@ -23,6 +25,8 @@ class WikiReaderApplication : Application(), SingletonImageLoader.Factory {
 
     override fun newImageLoader(context: Context): ImageLoader {
         return ImageLoader.Builder(context)
+            // A safety ceiling for original-size requests, including equations.
+            .maxBitmapSize(Size(2048, 2048))
             .components {
                 add(
                     OkHttpNetworkFetcherFactory(

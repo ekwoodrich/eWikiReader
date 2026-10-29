@@ -13,7 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import coil3.size.Size
+import org.nsh07.wikireader.ui.image.fitDisplay
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.ColorConstants.colorMatrixInvert
 
@@ -28,12 +28,12 @@ fun EquationImage(
     Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
         AsyncImage(
             model = ImageRequest.Builder(context)
+                .fitDisplay(context)
                 .data(
                     "https://latex.codecogs.com/png.image?\\dpi{${
                         (dpi * 160 * (fontSize / 16.0)).toInt()
                     }}${latex}"
                 )
-                .size(Size.ORIGINAL)
                 .build(),
             placeholder = painterResource(R.drawable.more_horiz),
             error = painterResource(R.drawable.error),

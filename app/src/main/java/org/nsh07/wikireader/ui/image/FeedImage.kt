@@ -40,6 +40,7 @@ fun FeedImage(
     val context = LocalContext.current
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
+            .fitDisplay(context)
             .data(source)
             .crossfade(true)
             .build(),

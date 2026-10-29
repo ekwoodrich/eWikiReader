@@ -32,6 +32,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".eink.debug"
+            versionNameSuffix = "-eink-dev"
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
