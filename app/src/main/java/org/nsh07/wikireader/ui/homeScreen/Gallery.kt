@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -44,6 +45,7 @@ fun Gallery(
     onLinkClick: (String) -> Unit,
     onClick: (String, String) -> Unit
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val content = remember(text) { text.substringAfter('>').trim(' ', '\n').lines() }
     val pagerState = rememberPagerState { content.size }
     val coroutineScope = rememberCoroutineScope()
@@ -107,9 +109,8 @@ fun Gallery(
                 shapes = IconButtonDefaults.shapes(),
                 onClick = {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(
-                            pagerState.currentPage - 1
-                        )
+                        if (animationsEnabled) pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                        else pagerState.scrollToPage(pagerState.currentPage - 1)
                     }
                 },
                 enabled = pagerState.currentPage != 0
@@ -130,9 +131,8 @@ fun Gallery(
                 shapes = IconButtonDefaults.shapes(),
                 onClick = {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(
-                            pagerState.currentPage + 1
-                        )
+                        if (animationsEnabled) pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        else pagerState.scrollToPage(pagerState.currentPage + 1)
                     }
                 },
                 enabled = pagerState.currentPage != pagerState.pageCount - 1

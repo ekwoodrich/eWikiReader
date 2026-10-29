@@ -44,6 +44,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -70,6 +71,7 @@ import org.nsh07.wikireader.ui.historyScreen.viewModel.HistoryViewModel
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -105,6 +107,7 @@ fun HistoryScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val locale = LocalConfiguration.current.locales.get(0)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -199,7 +202,7 @@ fun HistoryScreen(
                             style = typography.titleSmall,
                             modifier = Modifier
                                 .padding(horizontal = 32.dp, vertical = 14.dp)
-                                .animateItem()
+                                .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
                         )
                     }
                     itemsIndexed(
@@ -227,7 +230,8 @@ fun HistoryScreen(
                         )
                         val imageCorners by animateDpAsState(
                             if (isPressed) 32.dp
-                            else 16.dp
+                            else 16.dp,
+                            motionScheme.fastSpatialSpec()
                         )
 
                         ListItem(
@@ -303,7 +307,7 @@ fun HistoryScreen(
                                     },
                                     interactionSource = interactionSource
                                 )
-                                .animateItem()
+                                .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
                         )
                     }
                 }
@@ -318,7 +322,7 @@ fun HistoryScreen(
                 val transition = rememberInfiniteTransition(
                     label = "Cookie rotate"
                 )
-                val angle by transition.animateFloat(
+                val angle by if (animationsEnabled) transition.animateFloat(
                     initialValue = 0f,
                     targetValue = 360f,
                     animationSpec = infiniteRepeatable(
@@ -326,7 +330,7 @@ fun HistoryScreen(
                         repeatMode = RepeatMode.Restart
                     ),
                     label = "Cookie animation"
-                )
+                ) else remember { mutableFloatStateOf(0f) }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(contentAlignment = Alignment.Center) {
                         Spacer(

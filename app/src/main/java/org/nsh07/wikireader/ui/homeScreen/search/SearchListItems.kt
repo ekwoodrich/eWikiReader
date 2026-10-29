@@ -39,6 +39,7 @@ import org.nsh07.wikireader.data.WikiSearchResult
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.image.FeedImage
 import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -52,6 +53,7 @@ fun LazyItemScope.SearchHistoryListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val currentText = currentItem.query
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -120,7 +122,7 @@ fun LazyItemScope.SearchHistoryListItem(
                 },
                 interactionSource = interactionSource
             )
-            .animateItem()
+            .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
     )
 }
 
@@ -136,6 +138,7 @@ fun LazyItemScope.PrefixSearchResultListItem(
     index: Int,
     modifier: Modifier = Modifier
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -206,7 +209,7 @@ fun LazyItemScope.PrefixSearchResultListItem(
                 },
                 interactionSource = interactionSource
             )
-            .animateItem()
+            .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
     )
 }
 
@@ -222,6 +225,7 @@ fun LazyItemScope.SearchResultListItem(
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -304,6 +308,6 @@ fun LazyItemScope.SearchResultListItem(
                 },
                 interactionSource = interactionSource
             )
-            .animateItem()
+            .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
     )
 }

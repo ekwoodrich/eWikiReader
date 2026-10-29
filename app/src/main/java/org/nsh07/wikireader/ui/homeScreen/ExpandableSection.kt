@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
@@ -61,6 +62,7 @@ fun ExpandableSection(
     onGalleryImageClick: (String, String) -> Unit,
     showRef: (String) -> Unit
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val initiallyExpanded = expanded
     var expanded by rememberSaveable { mutableStateOf(expanded) }
     androidx.compose.runtime.LaunchedEffect(initiallyExpanded) { if (initiallyExpanded) expanded = true }
@@ -115,8 +117,10 @@ fun ExpandableSection(
 
         AnimatedVisibility(
             expanded,
-            enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
-            exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+            enter = if (animationsEnabled) expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn()
+            else androidx.compose.animation.EnterTransition.None,
+            exit = if (animationsEnabled) shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+            else androidx.compose.animation.ExitTransition.None
         ) {
             ParsedBodyText(
                 body = body,

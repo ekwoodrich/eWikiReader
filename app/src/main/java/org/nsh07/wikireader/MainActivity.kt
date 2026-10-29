@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -23,6 +24,8 @@ import org.nsh07.wikireader.ui.AppScreen
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeScreenViewModel
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
+import org.nsh07.wikireader.ui.image.LocalAppImageLoader
 
 class MainActivity : ComponentActivity() {
 
@@ -47,17 +50,21 @@ class MainActivity : ComponentActivity() {
             }
 
             val seed = preferencesState.colorScheme.toColor()
+            val appImageLoader = remember { coil3.SingletonImageLoader.get(this@MainActivity) }
 
             WikiReaderTheme(
                 darkTheme = darkTheme,
                 seedColor = seed,
-                blackTheme = preferencesState.blackTheme
+                blackTheme = preferencesState.blackTheme,
+                disableAnimations = preferencesState.disableAnimations
             ) {
                 viewModel.setCompositionLocals(
                     cs = colorScheme,
                     tg = typography
                 )
                 CompositionLocalProvider(
+                    LocalAppImageLoader provides appImageLoader,
+                    LocalAppAnimationsEnabled provides !preferencesState.disableAnimations,
                     LocalLayoutDirection provides
                             if (isRtl(preferencesState.lang)) LayoutDirection.Rtl
                             else LayoutDirection.Ltr

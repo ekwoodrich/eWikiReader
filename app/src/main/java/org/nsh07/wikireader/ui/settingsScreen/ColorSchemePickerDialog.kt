@@ -1,6 +1,9 @@
 package org.nsh07.wikireader.ui.settingsScreen
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.theme.WikiReaderTheme
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -45,13 +49,21 @@ fun ColorPickerButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     IconButton(
         shapes = IconButtonDefaults.shapes(),
         colors = IconButtonDefaults.iconButtonColors(containerColor = color),
         modifier = modifier.size(48.dp),
         onClick = onClick
     ) {
-        AnimatedContent(isSelected) { isSelected ->
+        AnimatedContent(
+            isSelected,
+            transitionSpec = {
+                if (animationsEnabled) fadeIn().togetherWith(fadeOut())
+                else androidx.compose.animation.EnterTransition.None
+                    .togetherWith(androidx.compose.animation.ExitTransition.None).using(null)
+            }
+        ) { isSelected ->
             when (isSelected) {
                 true -> Icon(
                     painterResource(R.drawable.check),

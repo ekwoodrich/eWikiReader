@@ -72,6 +72,8 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.image.rememberAppSharedContentState
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 import org.nsh07.wikireader.ui.theme.CustomColors.cardColors
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.bottomListItemShape
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
@@ -102,6 +104,7 @@ fun ArticleFeed(
     onImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val configuration = LocalConfiguration.current
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
@@ -135,7 +138,7 @@ fun ArticleFeed(
             refreshFeed()
         },
         indicator = {
-            LoadingIndicator(
+            if (animationsEnabled) LoadingIndicator(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = insets.calculateTopPadding()),
@@ -183,7 +186,7 @@ fun ArticleFeed(
                                     loadingIndicator = false,
                                     modifier = Modifier
                                         .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
+                                            sharedContentState = rememberAppSharedContentState(
                                                 feedContent.tfa.originalImage?.source ?: "imgsrc"
                                             ),
                                             animatedVisibilityScope = LocalNavAnimatedContentScope.current
@@ -196,7 +199,7 @@ fun ArticleFeed(
                                     fontFamily = FontFamily.Serif,
                                     modifier = Modifier
                                         .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
+                                            sharedContentState = rememberAppSharedContentState(
                                                 feedContent.tfa.titles?.normalized ?: "title"
                                             ),
                                             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
@@ -211,7 +214,7 @@ fun ArticleFeed(
                                     color = colorScheme.onSurfaceVariant,
                                     modifier = Modifier
                                         .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
+                                            sharedContentState = rememberAppSharedContentState(
                                                 feedContent.tfa.description ?: "desc"
                                             ),
                                             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
@@ -238,7 +241,7 @@ fun ArticleFeed(
                                         loadingIndicator = false,
                                         modifier = Modifier
                                             .sharedBounds(
-                                                sharedContentState = rememberSharedContentState(
+                                                sharedContentState = rememberAppSharedContentState(
                                                     feedContent.tfa.originalImage?.source
                                                         ?: "imgsrc"
                                                 ),
@@ -253,7 +256,7 @@ fun ArticleFeed(
                                             fontFamily = FontFamily.Serif,
                                             modifier = Modifier
                                                 .sharedBounds(
-                                                    sharedContentState = rememberSharedContentState(
+                                                    sharedContentState = rememberAppSharedContentState(
                                                         feedContent.tfa.titles?.normalized
                                                             ?: "title"
                                                     ),
@@ -269,7 +272,7 @@ fun ArticleFeed(
                                             color = colorScheme.onSurfaceVariant,
                                             modifier = Modifier
                                                 .sharedBounds(
-                                                    sharedContentState = rememberSharedContentState(
+                                                    sharedContentState = rememberAppSharedContentState(
                                                         feedContent.tfa.description ?: "desc"
                                                     ),
                                                     animatedVisibilityScope = LocalNavAnimatedContentScope.current,
@@ -354,7 +357,7 @@ fun ArticleFeed(
                                                     style = typography.titleMedium,
                                                     modifier = Modifier
                                                         .sharedBounds(
-                                                            sharedContentState = rememberSharedContentState(
+                                                            sharedContentState = rememberAppSharedContentState(
                                                                 feedContent.mostReadArticles[i].titles?.normalized
                                                                     ?: "title"
                                                             ),
@@ -370,7 +373,7 @@ fun ArticleFeed(
                                                     maxLines = 2,
                                                     overflow = TextOverflow.Ellipsis,
                                                     modifier = Modifier.sharedBounds(
-                                                        sharedContentState = rememberSharedContentState(
+                                                        sharedContentState = rememberAppSharedContentState(
                                                             feedContent.mostReadArticles[i].description
                                                                 ?: "desc"
                                                         ),
@@ -413,7 +416,7 @@ fun ArticleFeed(
                                                     background = imageBackground,
                                                     modifier = Modifier
                                                         .sharedBounds(
-                                                            sharedContentState = rememberSharedContentState(
+                                                            sharedContentState = rememberAppSharedContentState(
                                                                 feedContent.mostReadArticles[i].originalImage?.source
                                                                     ?: "imgsrc"
                                                             ),
@@ -442,9 +445,8 @@ fun ArticleFeed(
                                     shapes = IconButtonDefaults.shapes(),
                                     onClick = {
                                         coroutineScope.launch {
-                                            pagerState.animateScrollToPage(
-                                                pagerState.currentPage - 1
-                                            )
+                                            if (animationsEnabled) pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                            else pagerState.scrollToPage(pagerState.currentPage - 1)
                                         }
                                     },
                                     enabled = pagerState.currentPage != 0
@@ -465,9 +467,8 @@ fun ArticleFeed(
                                     shapes = IconButtonDefaults.shapes(),
                                     onClick = {
                                         coroutineScope.launch {
-                                            pagerState.animateScrollToPage(
-                                                pagerState.currentPage + 1
-                                            )
+                                            if (animationsEnabled) pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                            else pagerState.scrollToPage(pagerState.currentPage + 1)
                                         }
                                     },
                                     enabled = pagerState.currentPage != pagerState.pageCount - 1
@@ -510,7 +511,7 @@ fun ArticleFeed(
                                     loadingIndicator = false,
                                     modifier = Modifier
                                         .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
+                                            sharedContentState = rememberAppSharedContentState(
                                                 feedContent.image.thumbnail?.source ?: "imgsrc"
                                             ),
                                             animatedVisibilityScope = LocalNavAnimatedContentScope.current
@@ -669,7 +670,7 @@ fun ArticleFeed(
                                                         overflow = TextOverflow.Ellipsis,
                                                         color = Color.White,
                                                         modifier = Modifier.sharedBounds(
-                                                            sharedContentState = rememberSharedContentState(
+                                                            sharedContentState = rememberAppSharedContentState(
                                                                 it.titles?.normalized ?: "title"
                                                             ),
                                                             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
@@ -796,7 +797,7 @@ fun ArticleFeed(
                                                             overflow = TextOverflow.Ellipsis,
                                                             color = Color.White,
                                                             modifier = Modifier.sharedBounds(
-                                                                sharedContentState = rememberSharedContentState(
+                                                                sharedContentState = rememberAppSharedContentState(
                                                                     it.titles?.normalized ?: "title"
                                                                 ),
                                                                 animatedVisibilityScope = LocalNavAnimatedContentScope.current,

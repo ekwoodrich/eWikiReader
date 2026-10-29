@@ -1,6 +1,5 @@
 package org.nsh07.wikireader.ui.image
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -18,11 +17,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import coil3.SingletonImageLoader
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
+import org.nsh07.wikireader.ui.image.LocalAppImageLoader
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -38,12 +40,15 @@ fun FeedImage(
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
+    val animationsEnabled = LocalAppAnimationsEnabled.current
+    val imageLoader = LocalAppImageLoader.current ?: SingletonImageLoader.get(context)
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
             .fitDisplay(context)
             .data(source)
-            .crossfade(true)
+            .crossfade(animationsEnabled)
             .build(),
+        imageLoader = imageLoader,
         contentScale = contentScale,
     )
 
@@ -51,7 +56,7 @@ fun FeedImage(
 
     when (painterState) {
         is AsyncImagePainter.State.Success -> {
-            Image(
+            PlaybackImage(
                 painter = painter,
                 contentDescription = description,
                 contentScale = contentScale,
@@ -81,8 +86,10 @@ fun FeedImage(
                         modifier
                             .fillMaxSize()
             ) {
-                if (loadingIndicator) LoadingIndicator()
-                else CircularWavyProgressIndicator()
+                if (animationsEnabled) {
+                    if (loadingIndicator) LoadingIndicator()
+                    else CircularWavyProgressIndicator()
+                }
             }
         }
 

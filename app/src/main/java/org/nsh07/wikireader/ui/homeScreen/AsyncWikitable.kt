@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
@@ -60,6 +62,7 @@ fun AsyncWikitable(
     onLinkClick: (String) -> Unit,
     showRef: (String) -> Unit
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val colorScheme = colorScheme
     val typography = typography
     val coroutineScope = rememberCoroutineScope()
@@ -118,8 +121,10 @@ fun AsyncWikitable(
 
     AnimatedVisibility(
         expanded,
-        enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
-        exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+        enter = if (animationsEnabled) expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn()
+        else androidx.compose.animation.EnterTransition.None,
+        exit = if (animationsEnabled) shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+        else androidx.compose.animation.ExitTransition.None
     ) {
         Box(
             modifier = Modifier

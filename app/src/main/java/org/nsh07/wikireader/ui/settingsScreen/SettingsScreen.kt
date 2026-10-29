@@ -260,6 +260,13 @@ fun SettingsScreen(
                 )
             ) else emptyArray(),
             SettingsSwitchItem(
+                preferencesState.disableAnimations,
+                R.drawable.motion_photos_off,
+                string.disable_animations,
+                string.disable_animations_description,
+                SettingsAction::SaveDisableAnimations
+            ),
+            SettingsSwitchItem(
                 preferencesState.blackTheme,
                 R.drawable.contrast,
                 string.settingBlackTheme,

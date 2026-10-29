@@ -20,6 +20,7 @@ sealed class SettingsAction {
 
     data class SavePagedReading(val value: Boolean) : SettingsAction()
     data class SaveVolumePageTurns(val value: Boolean) : SettingsAction()
+    data class SaveDisableAnimations(val value: Boolean) : SettingsAction()
 
     object ResetSettings : SettingsAction()
 }

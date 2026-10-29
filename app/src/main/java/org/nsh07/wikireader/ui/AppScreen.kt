@@ -122,6 +122,7 @@ fun AppScreen(
     val languageSearchStr by viewModel.languageSearchStr.collectAsStateWithLifecycle()
     val languageSearchQuery by viewModel.languageSearchQuery.collectAsState("")
     val motionScheme = motionScheme
+    val animationsEnabled = !preferencesState.disableAnimations
     var showArticleLanguageSheet by rememberSaveable { mutableStateOf(false) }
     var deepLinkHandled by rememberSaveable { mutableStateOf(false) }
 
@@ -219,7 +220,8 @@ fun AppScreen(
             navController = navController,
             startDestination = HomeScreen(),
             enterTransition = {
-                if (compactWindow)
+                if (!animationsEnabled) androidx.compose.animation.EnterTransition.None
+                else if (compactWindow)
                     slideInHorizontally(initialOffsetX = { it })
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
@@ -229,13 +231,15 @@ fun AppScreen(
                             )
             },
             exitTransition = {
-                if (compactWindow)
+                if (!animationsEnabled) androidx.compose.animation.ExitTransition.None
+                else if (compactWindow)
                     slideOutHorizontally(targetOffsetX = { -it / 4 })
                 else
                     fadeOut(animationSpec = tween(90))
             },
             popEnterTransition = {
-                if (compactWindow)
+                if (!animationsEnabled) androidx.compose.animation.EnterTransition.None
+                else if (compactWindow)
                     slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn()
                 else
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
@@ -245,7 +249,8 @@ fun AppScreen(
                             )
             },
             popExitTransition = {
-                if (compactWindow)
+                if (!animationsEnabled) androidx.compose.animation.ExitTransition.None
+                else if (compactWindow)
                     slideOutHorizontally(targetOffsetX = { it })
                 else
                     fadeOut(animationSpec = tween(90))
@@ -279,11 +284,13 @@ fun AppScreen(
                     topBar = {
                         if (!readerFullScreen) AnimatedVisibility(
                             backStack.last() !is HomeSubscreen.Image,
-                            enter = slideInVertically(
+                            enter = if (animationsEnabled) slideInVertically(
                                 motionScheme.defaultSpatialSpec(),
                                 initialOffsetY = { -it }
-                            ) + expandVertically(motionScheme.defaultSpatialSpec()),
-                            exit = fadeOut()
+                            ) + expandVertically(motionScheme.defaultSpatialSpec())
+                            else androidx.compose.animation.EnterTransition.None,
+                            exit = if (animationsEnabled) fadeOut()
+                            else androidx.compose.animation.ExitTransition.None
                         ) {
                             AppSearchBar(
                                 appSearchBarState = appSearchBarState,
@@ -359,8 +366,10 @@ fun AppScreen(
 
                     AnimatedVisibility(
                         backStack.last() !is HomeSubscreen.Image,
-                        enter = fadeIn(motionScheme.slowEffectsSpec()),
-                        exit = fadeOut(motionScheme.fastEffectsSpec())
+                        enter = if (animationsEnabled) fadeIn(motionScheme.slowEffectsSpec())
+                        else androidx.compose.animation.EnterTransition.None,
+                        exit = if (animationsEnabled) fadeOut(motionScheme.fastEffectsSpec())
+                        else androidx.compose.animation.ExitTransition.None
                     ) {
                         StatusBarProtection()
                     }

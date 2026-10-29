@@ -30,13 +30,15 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import org.nsh07.wikireader.ui.image.PlaybackAsyncImage
+import coil3.SingletonImageLoader
 import coil3.request.crossfade
 import androidx.compose.ui.platform.testTag
 import coil3.request.ImageRequest
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.image.fitDisplay
+import org.nsh07.wikireader.ui.image.LocalAppImageLoader
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 
 @Composable
@@ -72,6 +74,7 @@ fun PagedArticleContent(
     }
     val textToolbar = LocalTextToolbar.current
     val context = LocalContext.current
+    val imageLoader = LocalAppImageLoader.current ?: SingletonImageLoader.get(context)
     val colors = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
     val direction = LocalLayoutDirection.current
@@ -172,8 +175,9 @@ fun PagedArticleContent(
                         for (fragment in pages[pageIndex].fragments) {
                             val block = blocks[fragment.block]
                             if (block.image != null) {
-                                AsyncImage(
+                                PlaybackAsyncImage(
                                     model = ImageRequest.Builder(context).data(block.image).fitDisplay(context).crossfade(false).build(),
+                                    imageLoader = imageLoader,
                                     contentDescription = block.imageDescription.ifEmpty { article.title },
                                     contentScale = ContentScale.Fit,
                                     error = androidx.compose.ui.res.painterResource(R.drawable.error),

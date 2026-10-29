@@ -38,4 +38,17 @@ class SettingsPersistenceTest {
         compose.waitUntil(10000) { compose.activity.settingsViewModel.preferencesState.value.volumePageTurns }
         assertNull(runBlocking { repository.readBooleanPreference("volume-page-turns") })
     }
+
+    @Test fun disableAnimationsSettingPersistsAndResets() {
+        compose.waitUntil(30000) { compose.activity.viewModel.appStatus.value == org.nsh07.wikireader.data.AppStatus.INITIALIZED }
+        val repository = (compose.activity.application as WikiReaderApplication).container.appPreferencesRepository
+        compose.runOnUiThread { compose.activity.settingsViewModel.onAction(SettingsAction.SaveDisableAnimations(true)) }
+        compose.waitUntil(10000) { compose.activity.settingsViewModel.preferencesState.value.disableAnimations }
+        assertEquals(true, runBlocking { repository.readBooleanPreference("disable-animations") })
+        compose.activityRule.scenario.recreate()
+        compose.waitUntil(10000) { compose.activity.settingsViewModel.preferencesState.value.disableAnimations }
+        compose.runOnUiThread { compose.activity.settingsViewModel.onAction(SettingsAction.ResetSettings) }
+        compose.waitUntil(10000) { !compose.activity.settingsViewModel.preferencesState.value.disableAnimations }
+        assertNull(runBlocking { repository.readBooleanPreference("disable-animations") })
+    }
 }

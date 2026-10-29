@@ -160,7 +160,8 @@ fun AppNavigationDrawer(
                     header = {
                         val expanded = state.targetValue == WideNavigationRailValue.Expanded
                         val rotation by animateFloatAsState(
-                            if (expanded) 0f else -180f
+                            if (expanded) 0f else -180f,
+                            animationSpec = motionScheme.defaultSpatialSpec()
                         )
                         Box(Modifier.fillMaxWidth()) {
                             IconButton(
@@ -175,6 +176,7 @@ fun AppNavigationDrawer(
                             ) {
                                 Crossfade(
                                     expanded,
+                                    animationSpec = motionScheme.defaultEffectsSpec(),
                                     modifier = Modifier.graphicsLayer {
                                         rotationZ = rotation
                                     }
@@ -266,7 +268,7 @@ private fun AppNavigationRailContent(
                     }
                 },
                 icon = {
-                    Crossfade(selected) {
+                    Crossfade(selected, animationSpec = motionScheme.defaultEffectsSpec()) {
                         when (it) {
                             true -> Icon(item.filledIcon, null)
                             else -> Icon(item.outlinedIcon, null)

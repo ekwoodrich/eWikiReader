@@ -3,6 +3,9 @@ package org.nsh07.wikireader.ui.homeScreen.search
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -130,6 +133,7 @@ fun AppSearchBar(
     onMenuIconClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val animationsEnabled = !preferencesState.disableAnimations
     val focusRequester = appSearchBarState.focusRequester
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
@@ -223,6 +227,11 @@ fun AppSearchBar(
             AnimatedContent(
                 searchBarState.targetValue == SearchBarValue.Collapsed &&
                         compactWindow,
+                transitionSpec = {
+                    if (animationsEnabled) fadeIn().togetherWith(fadeOut())
+                    else androidx.compose.animation.EnterTransition.None
+                        .togetherWith(androidx.compose.animation.ExitTransition.None).using(null)
+                },
                 modifier = Modifier.padding(
                     top = TopAppBarDefaults.windowInsets.asPaddingValues()
                         .calculateTopPadding(),
@@ -324,7 +333,14 @@ fun AppSearchBar(
             }
         }
 
-        AnimatedContent(textFieldState.text.trim().isEmpty()) { targetState ->
+        AnimatedContent(
+            textFieldState.text.trim().isEmpty(),
+            transitionSpec = {
+                if (animationsEnabled) fadeIn().togetherWith(fadeOut())
+                else androidx.compose.animation.EnterTransition.None
+                    .togetherWith(androidx.compose.animation.ExitTransition.None).using(null)
+            }
+        ) { targetState ->
             when (targetState) {
                 true ->
                     if (preferencesState.searchHistory) {
@@ -502,7 +518,7 @@ fun AppSearchBar(
                                                 onAction(HomeAction.LoadPage(it.title))
                                             }
                                         )
-                                        .animateItem()
+                                        .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
                                 )
                             }
                             items(
@@ -563,7 +579,7 @@ fun AppSearchBar(
                                                 onAction(HomeAction.LoadPage(it.title))
                                             }
                                         )
-                                        .animateItem()
+                                        .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
                                 )
                             }
                             item(span = { GridItemSpan(2) }) {

@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 
 @Composable
 fun AnimatedShimmer(content: @Composable (Brush) -> Unit) {
@@ -19,6 +20,11 @@ fun AnimatedShimmer(content: @Composable (Brush) -> Unit) {
         colorScheme.surfaceContainerHighest,
         colorScheme.surfaceContainer
     )
+
+    if (!LocalAppAnimationsEnabled.current) {
+        content(Brush.linearGradient(shimmerColors))
+        return
+    }
 
     val transition = rememberInfiniteTransition()
     val translateAnimation = transition.animateFloat(

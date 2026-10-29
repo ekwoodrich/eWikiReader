@@ -7,6 +7,8 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MotionScheme
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.snap
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -51,6 +53,7 @@ fun WikiReaderTheme(
     seedColor: Color = Color.White,
     dynamicColor: Boolean = true,
     blackTheme: Boolean = false,
+    disableAnimations: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -88,9 +91,19 @@ fun WikiReaderTheme(
     MaterialExpressiveTheme(
         colorScheme = scheme,
         typography = Typography,
-        motionScheme = MotionScheme.expressive(),
+        motionScheme = if (disableAnimations) NoMotionScheme else MotionScheme.expressive(),
         content = content
     )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private object NoMotionScheme : MotionScheme {
+    override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> = snap()
+    override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> = snap()
+    override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> = snap()
+    override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> = snap()
+    override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> = snap()
+    override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> = snap()
 }
 
 @Composable

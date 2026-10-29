@@ -1,0 +1,10 @@
+
+org.nsh07.wikireader.AnimationPlaybackTest:.
+org.nsh07.wikireader.SettingsPersistenceTest:.
+org.nsh07.wikireader.FullscreenReaderTest:.
+
+Time: 16.799
+
+OK (3 tests)
+
+

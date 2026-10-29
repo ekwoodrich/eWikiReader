@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -23,9 +24,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import org.nsh07.wikireader.parser.toWikitextAnnotatedString
 import org.nsh07.wikireader.ui.image.FeedImage
+import org.nsh07.wikireader.ui.image.rememberAppSharedContentState
 import org.nsh07.wikireader.ui.theme.ColorConstants.colorMatrixInvert
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SharedTransitionScope.ImageWithCaption(
     text: String,
@@ -66,13 +68,13 @@ fun SharedTransitionScope.ImageWithCaption(
             background = background,
             modifier = modifier
                 .sharedBounds(
-                    sharedContentState = rememberSharedContentState(uriHigh),
+                    sharedContentState = rememberAppSharedContentState(uriHigh),
                     animatedVisibilityScope = LocalNavAnimatedContentScope.current
                 )
                 .padding(horizontal = 16.dp)
                 .padding(top = 8.dp)
                 .clip(shape)
-                .animateContentSize()
+                .animateContentSize(motionScheme.defaultSpatialSpec())
                 .widthIn(max = 512.dp)
                 .clickable(onClick = { onClick(uriHigh, description) })
         )
@@ -91,7 +93,7 @@ fun SharedTransitionScope.ImageWithCaption(
                 color = colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(description),
+                        sharedContentState = rememberAppSharedContentState(description),
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current
                     )
                     .padding(horizontal = 16.dp)

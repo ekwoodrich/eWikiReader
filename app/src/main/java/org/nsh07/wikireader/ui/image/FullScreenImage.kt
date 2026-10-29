@@ -11,7 +11,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -44,6 +43,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import coil3.SingletonImageLoader
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.coerceAtLeast
@@ -58,6 +58,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import kotlinx.coroutines.launch
 import org.nsh07.wikireader.data.WikiPhoto
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
+import org.nsh07.wikireader.ui.image.LocalAppImageLoader
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -76,6 +78,8 @@ fun FullScreenImage(
     val view = LocalView.current
     val context = LocalContext.current
     val motionScheme = motionScheme
+    val animationsEnabled = LocalAppAnimationsEnabled.current
+    val imageLoader = LocalAppImageLoader.current ?: SingletonImageLoader.get(context)
     val window = remember { (view.context as Activity).window }
     val insetsController = remember { WindowCompat.getInsetsController(window, view) }
 
@@ -84,8 +88,9 @@ fun FullScreenImage(
         model = ImageRequest.Builder(context)
             .fitDisplay(context)
             .data(photo?.source)
-            .crossfade(true)
+            .crossfade(animationsEnabled)
             .build(),
+        imageLoader = imageLoader,
         contentScale = contentScale,
     )
 
@@ -129,8 +134,10 @@ fun FullScreenImage(
             topBar = {
                 AnimatedVisibility(
                     showTopBar,
-                    enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
-                    exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
+                    enter = if (animationsEnabled) slideInVertically(motionScheme.defaultSpatialSpec()) { -it }
+                    else androidx.compose.animation.EnterTransition.None,
+                    exit = if (animationsEnabled) slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
+                    else androidx.compose.animation.ExitTransition.None
                 ) {
                     FullScreenImageTopBar(
                         description = title,
@@ -173,10 +180,10 @@ fun FullScreenImage(
                 Box(contentAlignment = Alignment.Center) {
                     AnimatedVisibility(
                         painterState is AsyncImagePainter.State.Success && showTopBar && Build.VERSION.SDK_INT >= 31,
-                        enter = fadeIn(),
-                        exit = fadeOut()
+                        enter = if (animationsEnabled) fadeIn() else androidx.compose.animation.EnterTransition.None,
+                        exit = if (animationsEnabled) fadeOut() else androidx.compose.animation.ExitTransition.None
                     ) {
-                        Image(
+                        PlaybackImage(
                             painter = painter,
                             contentDescription = null,
                             contentScale = contentScale,
@@ -203,7 +210,7 @@ fun FullScreenImage(
                                     translationY = offset.y
                                 )
                                 .transformable(state = state)
-                                .pointerInput(Unit) {
+                                .pointerInput(animationsEnabled) {
                                     detectTapGestures(
                                         onTap = {
                                             showTopBar = !showTopBar
@@ -250,6 +257,9 @@ fun FullScreenArticleImage(
     val view = LocalView.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val zoomAnimationSpec = motionScheme.defaultSpatialSpec<Float>()
+    val animationsEnabled = LocalAppAnimationsEnabled.current
+    val imageLoader = LocalAppImageLoader.current ?: SingletonImageLoader.get(context)
     val window = remember { (view.context as Activity).window }
     val insetsController = remember { WindowCompat.getInsetsController(window, view) }
 
@@ -259,8 +269,9 @@ fun FullScreenArticleImage(
         model = ImageRequest.Builder(context)
             .fitDisplay(context)
             .data(uri)
-            .crossfade(true)
+            .crossfade(animationsEnabled)
             .build(),
+        imageLoader = imageLoader,
         contentScale = contentScale,
     )
 
@@ -304,8 +315,10 @@ fun FullScreenArticleImage(
             topBar = {
                 AnimatedVisibility(
                     showTopBar,
-                    enter = slideInVertically(motionScheme.defaultSpatialSpec()) { -it },
-                    exit = slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
+                    enter = if (animationsEnabled) slideInVertically(motionScheme.defaultSpatialSpec()) { -it }
+                    else androidx.compose.animation.EnterTransition.None,
+                    exit = if (animationsEnabled) slideOutVertically(motionScheme.defaultSpatialSpec()) { -it }
+                    else androidx.compose.animation.ExitTransition.None
                 ) {
                     FullScreenImageTopBar(
                         description = description,
@@ -346,10 +359,10 @@ fun FullScreenArticleImage(
             Box(contentAlignment = Alignment.Center) {
                 AnimatedVisibility(
                     painterState is AsyncImagePainter.State.Success && showTopBar && Build.VERSION.SDK_INT >= 31,
-                    enter = fadeIn(),
-                    exit = fadeOut()
+                    enter = if (animationsEnabled) fadeIn() else androidx.compose.animation.EnterTransition.None,
+                    exit = if (animationsEnabled) fadeOut() else androidx.compose.animation.ExitTransition.None
                 ) {
-                    Image(
+                    PlaybackImage(
                         painter = painter,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
@@ -376,7 +389,7 @@ fun FullScreenArticleImage(
                                 translationY = offset.y
                             )
                             .transformable(state = state)
-                            .pointerInput(Unit) {
+                            .pointerInput(animationsEnabled) {
                                 detectTapGestures(
                                     onTap = {
                                         showTopBar = !showTopBar
@@ -384,9 +397,9 @@ fun FullScreenArticleImage(
                                     onDoubleTap = {
                                         scope.launch {
                                             if (scale == 1f) // Zoom in only if the image is zoomed out
-                                                state.animateZoomBy(4f)
+                                                state.animateZoomBy(4f, animationSpec = zoomAnimationSpec)
                                             else
-                                                state.animateZoomBy(0.25f)
+                                                state.animateZoomBy(0.25f, animationSpec = zoomAnimationSpec)
                                         }
                                     }
                                 )

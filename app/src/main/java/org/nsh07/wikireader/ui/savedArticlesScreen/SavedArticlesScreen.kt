@@ -46,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -74,6 +75,7 @@ import org.nsh07.wikireader.ui.savedArticlesScreen.viewModel.SavedArticlesAction
 import org.nsh07.wikireader.ui.savedArticlesScreen.viewModel.SavedArticlesViewModel
 import org.nsh07.wikireader.ui.theme.CustomColors.listItemColors
 import org.nsh07.wikireader.ui.theme.CustomColors.topBarColors
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 
 @Composable
 fun SavedArticlesScreenRoot(
@@ -111,6 +113,7 @@ fun SavedArticlesScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -211,7 +214,7 @@ fun SavedArticlesScreen(
                             style = typography.titleSmall,
                             modifier = Modifier
                                 .padding(horizontal = 32.dp, vertical = 14.dp)
-                                .animateItem()
+                                .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
                         )
                     }
                     itemsIndexed(
@@ -239,7 +242,8 @@ fun SavedArticlesScreen(
                         )
                         val imageCorners by animateDpAsState(
                             if (isPressed) 32.dp
-                            else 16.dp
+                            else 16.dp,
+                            motionScheme.fastSpatialSpec()
                         )
 
                         ListItem(
@@ -297,7 +301,7 @@ fun SavedArticlesScreen(
                                     },
                                     interactionSource = interactionSource
                                 )
-                                .animateItem()
+                                .then(if (animationsEnabled) Modifier.animateItem() else Modifier)
                         )
                     }
                 }
@@ -313,7 +317,7 @@ fun SavedArticlesScreen(
                 val transition = rememberInfiniteTransition(
                     label = "Cookie rotate"
                 )
-                val angle by transition.animateFloat(
+                val angle by if (animationsEnabled) transition.animateFloat(
                     initialValue = 0f,
                     targetValue = 360f,
                     animationSpec = infiniteRepeatable(
@@ -321,7 +325,7 @@ fun SavedArticlesScreen(
                         repeatMode = RepeatMode.Restart
                     ),
                     label = "Cookie animation"
-                )
+                ) else remember { mutableFloatStateOf(0f) }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(contentAlignment = Alignment.Center) {
                         Spacer(

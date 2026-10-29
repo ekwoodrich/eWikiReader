@@ -140,6 +140,8 @@
     <string name="paged_reading_description" tools:ignore="MissingTranslation">Read articles one page at a time with Previous and Next. Sections stay expanded; tables reflow as rows. Scrolling remains available when disabled.</string>
     <string name="volume_page_turns" tools:ignore="MissingTranslation">Use volume buttons to turn pages</string>
     <string name="volume_page_turns_description" tools:ignore="MissingTranslation">Volume up goes to the previous page; volume down goes to the next page.</string>
+    <string name="disable_animations" tools:ignore="MissingTranslation">Disable animations</string>
+    <string name="disable_animations_description" tools:ignore="MissingTranslation">Turn off screen transitions, moving loading effects, animated image playback, and other motion effects.</string>
     <string name="reader_previous" tools:ignore="MissingTranslation">Previous</string>
     <string name="reader_next" tools:ignore="MissingTranslation">Next</string>
     <string name="reader_progress" tools:ignore="MissingTranslation">%1$d / %2$d</string>
@@ -148,4 +150,6 @@
     <string name="reader_column" tools:ignore="MissingTranslation">Column %1$d</string>
     <string name="reader_enter_fullscreen" tools:ignore="MissingTranslation">Hide toolbars</string>
     <string name="reader_exit_fullscreen" tools:ignore="MissingTranslation">Show toolbars</string>
+    <string name="play_animation" tools:ignore="MissingTranslation">Play animation</string>
+    <string name="pause_animation" tools:ignore="MissingTranslation">Pause animation</string>
 </resources>

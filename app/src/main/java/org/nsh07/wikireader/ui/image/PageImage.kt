@@ -2,7 +2,6 @@ package org.nsh07.wikireader.ui.image
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -39,13 +38,13 @@ fun SharedTransitionScope.PageImage(
 ) {
     when (painterState) {
         is AsyncImagePainter.State.Success -> {
-            Image(
+            PlaybackImage(
                 painter = painter,
                 contentDescription = photoDesc,
                 contentScale = contentScale,
                 modifier = Modifier
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(photo.source),
+                        sharedContentState = rememberAppSharedContentState(photo.source),
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current
                     )
                     .then(modifier)
@@ -63,7 +62,7 @@ fun SharedTransitionScope.PageImage(
                         photo.width.toFloat() / photo.height.toFloat()
                     )
             ) {
-                CircularWavyProgressIndicator()
+                if (org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled.current) CircularWavyProgressIndicator()
             }
         }
 
@@ -102,13 +101,13 @@ fun SharedTransitionScope.PageImage(
 ) {
     when (painterState) {
         is AsyncImagePainter.State.Success -> {
-            Image(
+            PlaybackImage(
                 painter = painter,
                 contentDescription = description,
                 contentScale = contentScale,
                 modifier = Modifier
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(uri),
+                        sharedContentState = rememberAppSharedContentState(uri),
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current
                     )
                     .then(modifier)
@@ -122,7 +121,7 @@ fun SharedTransitionScope.PageImage(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                CircularWavyProgressIndicator()
+                if (org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled.current) CircularWavyProgressIndicator()
             }
         }
 

@@ -142,6 +142,7 @@ fun AppHomeScreen(
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     val motionScheme = motionScheme
+    val animationsEnabled = !preferencesState.disableAnimations
 
     val sendIntent: Intent = remember(backStack.last(), preferencesState.lang) {
         Intent()
@@ -241,10 +242,11 @@ fun AppHomeScreen(
                     onAction(HomeAction.StopAll)
                     backStack.removeAt(backStack.lastIndex)
                 },
-                transitionSpec = { if (preferencesState.pagedReading) androidx.compose.animation.EnterTransition.None.togetherWith(androidx.compose.animation.ExitTransition.None) else fadeIn().togetherWith(fadeOut()) },
-                popTransitionSpec = { if (preferencesState.pagedReading) androidx.compose.animation.EnterTransition.None.togetherWith(androidx.compose.animation.ExitTransition.None) else fadeIn().togetherWith(fadeOut()) },
+                transitionSpec = { if (preferencesState.pagedReading || !animationsEnabled) androidx.compose.animation.EnterTransition.None.togetherWith(androidx.compose.animation.ExitTransition.None) else fadeIn().togetherWith(fadeOut()) },
+                popTransitionSpec = { if (preferencesState.pagedReading || !animationsEnabled) androidx.compose.animation.EnterTransition.None.togetherWith(androidx.compose.animation.ExitTransition.None) else fadeIn().togetherWith(fadeOut()) },
                 predictivePopTransitionSpec = { edge ->
-                    if (backStack.size > 2 && backStack.last() !is HomeSubscreen.Image)
+                    if (!animationsEnabled) androidx.compose.animation.EnterTransition.None.togetherWith(androidx.compose.animation.ExitTransition.None)
+                    else if (backStack.size > 2 && backStack.last() !is HomeSubscreen.Image)
                         if (edge == NavigationEvent.EDGE_LEFT) {
                             (slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn())
                                 .togetherWith(slideOutHorizontally(targetOffsetX = { it }))
@@ -389,20 +391,20 @@ fun AppHomeScreen(
 
         AnimatedVisibility( // The linear progress bar that shows up when the article is loading
             visible = homeScreenState.isLoading,
-            enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top),
+            enter = if (animationsEnabled) expandVertically(expandFrom = Alignment.Top) else androidx.compose.animation.EnterTransition.None,
+            exit = if (animationsEnabled) shrinkVertically(shrinkTowards = Alignment.Top) else androidx.compose.animation.ExitTransition.None,
             modifier = Modifier.padding(top = (max(systemBars, insets.calculateTopPadding())))
         ) {
-            if (homeScreenState.loadingProgress == null)
-                LinearProgressIndicator(
+            if (homeScreenState.loadingProgress == null) {
+                if (animationsEnabled) LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp)
                 )
-            else {
+            } else {
                 val animatedProgress by animateFloatAsState(
                     targetValue = homeScreenState.loadingProgress,
-                    animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+                    animationSpec = if (animationsEnabled) ProgressIndicatorDefaults.ProgressAnimationSpec else androidx.compose.animation.core.snap()
                 )
                 LinearProgressIndicator(
                     { animatedProgress },
@@ -415,22 +417,22 @@ fun AppHomeScreen(
 
         if (!readerFullScreen) AnimatedVisibility(
             backStack.last() !is HomeSubscreen.Image,
-            enter = slideInVertically(
+            enter = if (animationsEnabled) slideInVertically(
                 motionScheme.defaultSpatialSpec(),
                 initialOffsetY = {
                     with(density) {
                         it + insets.calculateBottomPadding().roundToPx() + 1
                     }
                 }
-            ),
-            exit = slideOutVertically(
+            ) else androidx.compose.animation.EnterTransition.None,
+            exit = if (animationsEnabled) slideOutVertically(
                 motionScheme.defaultSpatialSpec(),
                 targetOffsetY = {
                     with(density) {
                         it + insets.calculateBottomPadding().roundToPx() + 1
                     }
                 }
-            ),
+            ) else androidx.compose.animation.ExitTransition.None,
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             HorizontalFloatingToolbar(
@@ -542,6 +544,12 @@ fun AppHomeScreen(
                             if (backStack.last() is HomeSubscreen.Article)
                                 (backStack.last() as HomeSubscreen.Article).savedStatus
                             else SavedStatus.NOT_SAVED,
+                            transitionSpec = {
+                                if (animationsEnabled) fadeIn().togetherWith(fadeOut())
+                                else androidx.compose.animation.EnterTransition.None
+                                    .togetherWith(androidx.compose.animation.ExitTransition.None)
+                                    .using(null)
+                            },
                             label = "saveAnimation"
                         ) { saved ->
                             when (saved) {
@@ -551,7 +559,8 @@ fun AppHomeScreen(
                                         contentDescription = stringResource(R.string.deleteArticle)
                                     )
 
-                                SavedStatus.SAVING -> LoadingIndicator()
+                                SavedStatus.SAVING -> if (animationsEnabled) LoadingIndicator() else
+                                    Icon(painterResource(R.drawable.download), contentDescription = stringResource(R.string.downloadArticle))
 
                                 else ->
                                     Icon(

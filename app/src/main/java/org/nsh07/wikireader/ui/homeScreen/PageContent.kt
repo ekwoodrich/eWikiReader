@@ -38,6 +38,7 @@ import org.nsh07.wikireader.data.WikiLang
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeAction
 import org.nsh07.wikireader.ui.homeScreen.viewModel.HomeSubscreen
 import org.nsh07.wikireader.ui.image.ImageCard
+import org.nsh07.wikireader.ui.image.rememberAppSharedContentState
 import org.nsh07.wikireader.ui.settingsScreen.viewModel.PreferencesState
 import org.nsh07.wikireader.ui.theme.isDark
 
@@ -127,7 +128,7 @@ fun PageContent(
             isRefreshing = true
         },
         indicator = {
-            LoadingIndicator(
+            if (!preferencesState.disableAnimations) LoadingIndicator(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = insets.calculateTopPadding()),
@@ -152,7 +153,7 @@ fun PageContent(
                                 fontFamily = FontFamily.Serif,
                                 modifier = Modifier
                                     .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(
+                                        sharedContentState = rememberAppSharedContentState(
                                             content.title
                                         ),
                                         animatedVisibilityScope = LocalNavAnimatedContentScope.current,
@@ -169,7 +170,7 @@ fun PageContent(
                                     fontFamily = FontFamily.Serif,
                                     modifier = Modifier
                                         .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
+                                            sharedContentState = rememberAppSharedContentState(
                                                 photoDesc
                                             ),
                                             animatedVisibilityScope = LocalNavAnimatedContentScope.current,

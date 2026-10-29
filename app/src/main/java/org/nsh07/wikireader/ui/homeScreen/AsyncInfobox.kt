@@ -52,6 +52,8 @@ import kotlinx.coroutines.launch
 import org.nsh07.wikireader.R
 import org.nsh07.wikireader.parser.parseInfobox
 import org.nsh07.wikireader.ui.theme.CustomColors.cardColors
+import org.nsh07.wikireader.ui.image.rememberAppSharedContentState
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -65,6 +67,7 @@ fun AsyncInfobox(
     onLinkClick: (String) -> Unit,
     showRef: (String) -> Unit
 ) {
+    val animationsEnabled = LocalAppAnimationsEnabled.current
     val context = LocalContext.current
     val colorScheme = colorScheme
     val typography = typography
@@ -111,14 +114,18 @@ fun AsyncInfobox(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(stringResource(R.string.infobox), fontWeight = FontWeight.Medium)
                             Spacer(Modifier.width(8.dp))
-                            AnimatedVisibility(!expanded) {
+                            AnimatedVisibility(
+                                !expanded,
+                                enter = if (animationsEnabled) androidx.compose.animation.fadeIn() else androidx.compose.animation.EnterTransition.None,
+                                exit = if (animationsEnabled) androidx.compose.animation.fadeOut() else androidx.compose.animation.ExitTransition.None
+                            ) {
                                 Text(
                                     title ?: AnnotatedString(""),
                                     color = colorScheme.outline,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier
                                         .sharedBounds(
-                                            sharedContentState = rememberSharedContentState(
+                                            sharedContentState = rememberAppSharedContentState(
                                                 title ?: AnnotatedString("")
                                             ), animatedVisibilityScope = this
                                         )
@@ -135,8 +142,10 @@ fun AsyncInfobox(
 
                 AnimatedVisibility(
                     expanded,
-                    enter = expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn(),
-                    exit = shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+                    enter = if (animationsEnabled) expandVertically(expandFrom = Alignment.CenterVertically) + fadeIn()
+                    else androidx.compose.animation.EnterTransition.None,
+                    exit = if (animationsEnabled) shrinkVertically(shrinkTowards = Alignment.CenterVertically) + fadeOut()
+                    else androidx.compose.animation.ExitTransition.None
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (title != null)
@@ -146,7 +155,7 @@ fun AsyncInfobox(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(
+                                        sharedContentState = rememberAppSharedContentState(
                                             key = title ?: AnnotatedString("")
                                         ),
                                         animatedVisibilityScope = this@AnimatedVisibility

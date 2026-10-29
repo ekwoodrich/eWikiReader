@@ -14,6 +14,7 @@ class FullscreenReaderTest {
     @Test fun hideChromeUsesMoreSpaceAndKeepsSymmetricControls() {
         compose.waitUntil(30000) { compose.activity.viewModel.appStatus.value == org.nsh07.wikireader.data.AppStatus.INITIALIZED }
         compose.runOnUiThread {
+            compose.activity.settingsViewModel.onAction(SettingsAction.SaveDisableAnimations(true))
             compose.activity.settingsViewModel.onAction(SettingsAction.SavePagedReading(true))
             compose.activity.viewModel.onAction(HomeAction.LoadPage("E Ink"))
         }

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import coil3.SingletonImageLoader
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
@@ -23,6 +24,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import org.nsh07.wikireader.data.WikiPhoto
 import org.nsh07.wikireader.ui.theme.WRShapeDefaults.cardShape
+import org.nsh07.wikireader.ui.theme.LocalAppAnimationsEnabled
+import org.nsh07.wikireader.ui.image.LocalAppImageLoader
 
 /**
  * Composable for displaying a Wikipedia image with its associated text
@@ -47,14 +50,17 @@ fun SharedTransitionScope.ImageCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val animationsEnabled = LocalAppAnimationsEnabled.current
+    val imageLoader = LocalAppImageLoader.current ?: SingletonImageLoader.get(context)
 
     val contentScale = ContentScale.Crop
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(context)
             .fitDisplay(context)
             .data(photo?.source)
-            .crossfade(true)
+            .crossfade(animationsEnabled)
             .build(),
+        imageLoader = imageLoader,
         contentScale = contentScale,
     )
     val painterState by painter.state.collectAsStateWithLifecycle()
@@ -78,7 +84,7 @@ fun SharedTransitionScope.ImageCard(
                 background = background,
                 modifier = Modifier
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(photo.source),
+                        sharedContentState = rememberAppSharedContentState(photo.source),
                         animatedVisibilityScope = animatedVisibilityScope
                     )
                     .fillMaxWidth()
