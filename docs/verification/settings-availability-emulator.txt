@@ -1,0 +1,8 @@
+
+org.nsh07.wikireader.SettingsAvailabilityTest:.
+
+Time: 5.913
+
+OK (1 test)
+
+

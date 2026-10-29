@@ -142,3 +142,13 @@ Verification: debug and instrumentation APK builds succeeded, and all 14 JVM tes
 Final debug APK SHA-256: `a25d2be7a903ceb144e0510dbafc6b585abad84083a2018fa7c0a5d88615dc8e`. APK path: `app/build/outputs/apk/debug/app-debug.apk`.
 
 The physical Settings screen was also inspected after installing the final APK: [Boox animation and volume switches](verification/boox-disable-animations-setting.png). Both switches are enabled on the Boox for further e-ink evaluation.
+
+## Settings grouping and availability follow-up
+
+Paged reading, volume-button page turning, and Disable animations now occupy a separate rounded group after the existing toggle list, immediately above the Wikipedia link-default card. Paged reading has been removed from the theme group.
+
+Immersive mode is disabled in paged mode because `AppScreen` pins the scrolling chrome in that mode; the reader's toolbar visibility button controls its reading area instead. Expand sections is disabled because the paged block renderer includes every section. Their supporting text explains the reason. Their saved values remain visible and are restored as active choices when scrolling mode is selected. Other settings remain usable because the paged renderer or other app screens consume them.
+
+The volume option now stays present in both modes and is disabled in scrolling mode. Removing conditional row insertion and providing stable resource-ID keys for every toggle prevents positional row reuse when changing reading mode. Disable animations remains available throughout. This addresses the reported blank volume row after toggling paged mode.
+
+Debug and instrumentation builds passed. A regression test using the production Settings screen passed on the emulator and physical Boox: four repeated off/on cycles, with interface animations both enabled and disabled, verify that the volume switch stays displayed with nonzero bounds and changes availability correctly. It also checks the two scrolling-only controls are disabled in paged mode, retain their checked values, and re-enable in scrolling mode. Evidence: [emulator](verification/settings-availability-emulator.txt), [Boox](verification/settings-availability-boox.txt). Updated debug APK installed on both devices. SHA-256: `1a342c557391400dde48e0625b4272f41fdf952c4dc47d394eeeece041ab6bb3`.

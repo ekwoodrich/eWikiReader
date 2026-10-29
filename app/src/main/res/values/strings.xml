@@ -152,4 +152,6 @@
     <string name="reader_exit_fullscreen" tools:ignore="MissingTranslation">Show toolbars</string>
     <string name="play_animation" tools:ignore="MissingTranslation">Play animation</string>
     <string name="pause_animation" tools:ignore="MissingTranslation">Pause animation</string>
+    <string name="paged_sections_always_expanded" tools:ignore="MissingTranslation">All sections are expanded in paged mode. This setting applies to scrolling mode.</string>
+    <string name="paged_immersive_not_applicable" tools:ignore="MissingTranslation">Use the toolbar visibility button in paged mode. This setting applies to scrolling mode.</string>
 </resources>

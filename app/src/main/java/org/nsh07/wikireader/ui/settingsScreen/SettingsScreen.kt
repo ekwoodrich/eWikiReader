@@ -60,6 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -244,29 +245,6 @@ fun SettingsScreen(
     val switchItems = remember(preferencesState) {
         listOf(
             SettingsSwitchItem(
-                preferencesState.pagedReading,
-                R.drawable.expand_all,
-                string.paged_reading,
-                string.paged_reading_description,
-                SettingsAction::SavePagedReading
-            ),
-            *if (preferencesState.pagedReading) arrayOf(
-                SettingsSwitchItem(
-                    preferencesState.volumePageTurns,
-                    R.drawable.volume_up,
-                    string.volume_page_turns,
-                    string.volume_page_turns_description,
-                    SettingsAction::SaveVolumePageTurns
-                )
-            ) else emptyArray(),
-            SettingsSwitchItem(
-                preferencesState.disableAnimations,
-                R.drawable.motion_photos_off,
-                string.disable_animations,
-                string.disable_animations_description,
-                SettingsAction::SaveDisableAnimations
-            ),
-            SettingsSwitchItem(
                 preferencesState.blackTheme,
                 R.drawable.contrast,
                 string.settingBlackTheme,
@@ -292,8 +270,9 @@ fun SettingsScreen(
                 preferencesState.expandedSections,
                 R.drawable.expand_all,
                 string.settingExpandSections,
-                string.settingExpandSectionsDesc,
-                SettingsAction::SaveExpandedSections
+                if (preferencesState.pagedReading) string.paged_sections_always_expanded else string.settingExpandSectionsDesc,
+                SettingsAction::SaveExpandedSections,
+                enabled = !preferencesState.pagedReading
             ),
             SettingsSwitchItem(
                 preferencesState.imageBackground,
@@ -306,8 +285,9 @@ fun SettingsScreen(
                 preferencesState.immersiveMode,
                 R.drawable.open_in_full,
                 string.settingImmersiveMode,
-                string.settingImmersiveModeDesc,
-                SettingsAction::SaveImmersiveMode
+                if (preferencesState.pagedReading) string.paged_immersive_not_applicable else string.settingImmersiveModeDesc,
+                SettingsAction::SaveImmersiveMode,
+                enabled = !preferencesState.pagedReading
             ),
             SettingsSwitchItem(
                 preferencesState.renderMath,
@@ -329,6 +309,33 @@ fun SettingsScreen(
                 string.settingSearchHistory,
                 string.settingSearchHistoryDesc,
                 SettingsAction::SaveSearchHistory
+            )
+        )
+    }
+
+    val readerSwitchItems = remember(preferencesState) {
+        listOf(
+            SettingsSwitchItem(
+                preferencesState.pagedReading,
+                R.drawable.expand_all,
+                string.paged_reading,
+                string.paged_reading_description,
+                SettingsAction::SavePagedReading
+            ),
+            SettingsSwitchItem(
+                preferencesState.volumePageTurns,
+                R.drawable.volume_up,
+                string.volume_page_turns,
+                string.volume_page_turns_description,
+                SettingsAction::SaveVolumePageTurns,
+                enabled = preferencesState.pagedReading
+            ),
+            SettingsSwitchItem(
+                preferencesState.disableAnimations,
+                R.drawable.motion_photos_off,
+                string.disable_animations,
+                string.disable_animations_description,
+                SettingsAction::SaveDisableAnimations
             )
         )
     }
@@ -393,7 +400,7 @@ fun SettingsScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = insets,
-            modifier = Modifier
+            modifier = Modifier.testTag("settings-list")
                 .background(topBarColors.containerColor)
                 .padding(horizontal = 16.dp)
         ) {
@@ -413,7 +420,7 @@ fun SettingsScreen(
                         else Text(stringResource(string.colorSchemeColor))
                     },
                     colors = listItemColors,
-                    items = 3,
+                    items = 2,
                     index = 0
                 ) { setShowColorSchemeDialog(true) }
             }
@@ -428,44 +435,9 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(string.settingTheme)) },
                     supportingContent = { Text(themeMap[theme]!!.second) },
                     colors = listItemColors,
-                    items = 3,
+                    items = 2,
                     index = 1
                 ) { setShowThemeDialog(true) }
-            }
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(painterResource(switchItems[0].icon), contentDescription = null)
-                    },
-                    headlineContent = { Text(stringResource(switchItems[0].label)) },
-                    supportingContent = { Text(stringResource(switchItems[0].description)) },
-                    trailingContent = {
-                        Switch(
-                            checked = switchItems[0].checked,
-                            onCheckedChange = { onAction(switchItems[0].actionConstructor(it)) },
-                            thumbContent = {
-                                if (switchItems[0].checked) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.check),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                } else {
-                                    Icon(
-                                        painter = painterResource(R.drawable.clear),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                }
-                            },
-                            enabled = switchItems[0].enabled,
-                            colors = switchColors
-                        )
-                    },
-                    colors = listItemColors,
-                    modifier = Modifier
-                        .clip(bottomListItemShape)
-                )
             }
             item { Spacer(Modifier.height(12.dp)) }
             item {
@@ -601,50 +573,54 @@ fun SettingsScreen(
                 )
             }
             item { Spacer(Modifier.height(12.dp)) }
-            itemsIndexed(switchItems.drop(1)) { index, item ->
-                ListItem(
-                    leadingContent = {
-                        Icon(painterResource(item.icon), contentDescription = null)
-                    },
-                    headlineContent = { Text(stringResource(item.label)) },
-                    supportingContent = { Text(stringResource(item.description)) },
-                    trailingContent = {
-                        Switch(
-                            checked = item.checked && item.enabled,
-                            onCheckedChange = { onAction(item.actionConstructor(it)) },
-                            thumbContent = {
-                                if (item.checked && item.enabled) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.check),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
-                                } else {
-                                    Icon(
-                                        painter = painterResource(R.drawable.clear),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
-                                    )
+            for ((groupIndex, group) in listOf(switchItems, readerSwitchItems).withIndex()) {
+                if (groupIndex > 0) item { Spacer(Modifier.height(12.dp)) }
+                itemsIndexed(group, key = { _, item -> item.label }) { index, item ->
+                    ListItem(
+                        leadingContent = {
+                            Icon(painterResource(item.icon), contentDescription = null)
+                        },
+                        headlineContent = { Text(stringResource(item.label)) },
+                        supportingContent = { Text(stringResource(item.description)) },
+                        trailingContent = {
+                            Switch(
+                                modifier = Modifier.testTag("settings-toggle-${item.label}"),
+                                checked = item.checked,
+                                onCheckedChange = { onAction(item.actionConstructor(it)) },
+                                thumbContent = {
+                                    if (item.checked) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.check),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    } else {
+                                        Icon(
+                                            painter = painterResource(R.drawable.clear),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
+                                },
+                                enabled = item.enabled,
+                                colors = switchColors
+                            )
+                        },
+                        colors =
+                            if (item.enabled)
+                                listItemColors
+                            else
+                                disabledListColors,
+                        modifier = Modifier
+                            .clip(
+                                when (index) {
+                                    0 -> topListItemShape
+                                    group.lastIndex -> bottomListItemShape
+                                    else -> middleListItemShape
                                 }
-                            },
-                            enabled = item.enabled,
-                            colors = switchColors
-                        )
-                    },
-                    colors =
-                        if (item.enabled)
-                            listItemColors
-                        else
-                            disabledListColors,
-                    modifier = Modifier
-                        .clip(
-                            when (index) {
-                                0 -> topListItemShape
-                                switchItems.lastIndex - 1 -> bottomListItemShape
-                                else -> middleListItemShape
-                            }
-                        )
-                )
+                            )
+                    )
+                }
             }
             item {
                 Card(
