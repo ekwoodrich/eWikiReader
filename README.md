@@ -62,6 +62,8 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 
 ## Features
 
+Fork development: see the [e-ink paged-reading requirements and implementation plan](docs/paged-reading-plan.md), including Android Studio setup, device readiness, and emulator/Boox verification gates. The feature is currently planned.
+
 - **Fast loading:** The article text is loaded before anything else, so you can get to reading,
   quick.
 - **Feed:** Read the article of the day, find trending articles and get up to speed on the news with
