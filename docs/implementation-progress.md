@@ -14,6 +14,6 @@ Runtime smoke evidence: emulator feed displays live text and an image without th
 
 Lint was run and failed with 170 errors / 43 warnings before the debug label was marked non-translatable. After that correction, assembly passed again and lint reports 168 errors / 43 warnings, with no findings naming the changed image files or debug resources. The report includes existing Compose resource-call errors and missing translations throughout main resources. Remaining results are an outstanding repository check, not suppressed wholesale. Reports: `app/build/reports/lint-results-debug.html` and `app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt`.
 
-## Next implementation work
+## Pagination implementation
 
-Pagination has not been wired into the UI yet. Continue with block normalization and source anchors, measured text pagination, structured-media adapters, then settings and reader integration per [the plan](paged-reading-plan.md). Do not ship a switch that advertises pagination before it selects a usable renderer. The acceptance matrix, hardware buttons, unplugged wireless test and final physical panel review remain required.
+Pagination, eWikiReader branding and full-screen reading are implemented. See [the implementation and verification report](pagination-implementation-report.md) for design decisions, tests, evidence, build instructions and remaining limits. Full-screen reading hides app/tool/system bars while keeping a compact 48 dp row with symmetric arrow buttons, an independently centered `current / total` position, and a visible exit toggle. Back exits full screen before leaving the article.

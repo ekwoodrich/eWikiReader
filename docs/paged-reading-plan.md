@@ -1,4 +1,6 @@
-# Paged reading for WikiReader: requirements and implementation handoff
+# Paged reading for eWikiReader: requirements and implementation handoff
+
+Implementation status: see [the implementation and verification report](pagination-implementation-report.md). The remainder records the original planning baseline.
 
 Prepared 2026-10-29 against commit `fc5c017` (WikiReader 2.5.5). This document plans implementation; pagination and the stability fix have not yet been implemented. Device readiness was exercised separately from feature acceptance testing.
 
