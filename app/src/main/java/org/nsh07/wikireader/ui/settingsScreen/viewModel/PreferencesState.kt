@@ -15,6 +15,7 @@ data class PreferencesState(
     val feedEnabled: Boolean = true,
     val expandedSections: Boolean = false,
     val imageBackground: Boolean = false,
+    val pagedReading: Boolean = false,
     val immersiveMode: Boolean = true,
     val renderMath: Boolean = true,
     val browsingHistory: Boolean = true,

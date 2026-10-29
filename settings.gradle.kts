@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "WikiReader"
+rootProject.name = "eWikiReader"
 include(":app")
 include(":baselineprofile")

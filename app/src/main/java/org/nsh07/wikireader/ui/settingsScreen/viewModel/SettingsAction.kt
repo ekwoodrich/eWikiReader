@@ -18,5 +18,7 @@ sealed class SettingsAction {
     data class SaveRenderMath(val value: Boolean) : SettingsAction()
     data class SaveSearchHistory(val value: Boolean) : SettingsAction()
 
+    data class SavePagedReading(val value: Boolean) : SettingsAction()
+
     object ResetSettings : SettingsAction()
 }

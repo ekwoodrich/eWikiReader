@@ -59,7 +59,8 @@ fun PageContent(
     onGalleryImageClick: (String, String) -> Unit,
     setSearchStr: (String) -> Unit,
     onAction: (HomeAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    pageKeysEnabled: Boolean = true
 ) {
     val photo = content.photo
     val photoDesc = content.photoDesc
@@ -87,6 +88,31 @@ fun PageContent(
             loadPage = loadPage,
             setSearchStr = setSearchStr
         )
+
+    LaunchedEffect(preferencesState.pagedReading, content) {
+        val reader = content.readerState
+        if (preferencesState.pagedReading && !reader.lastModePaged) {
+            reader.enteringScrollIndex = content.listState.firstVisibleItemIndex
+            reader.enteringScrollOffset = content.listState.firstVisibleItemScrollOffset
+            reader.scrollTargetIndex = content.listState.firstVisibleItemIndex
+            reader.scrollTargetOffset = content.listState.firstVisibleItemScrollOffset
+        } else if (!preferencesState.pagedReading && reader.lastModePaged) {
+            reader.restoreExpandedSection = reader.scrollTargetIndex
+            content.listState.scrollToItem(reader.scrollTargetIndex, reader.scrollTargetOffset)
+        }
+        reader.lastModePaged = preferencesState.pagedReading
+    }
+
+    if (preferencesState.pagedReading) {
+        org.nsh07.wikireader.ui.homeScreen.reader.PagedArticleContent(
+            article = content, preferences = preferencesState, insets = insets,
+            load = { onAction(HomeAction.LoadPage(it)) },
+            reference = { onAction(HomeAction.UpdateRef(it)) },
+            openImage = onGalleryImageClick, modifier = modifier,
+            keysEnabled = pageKeysEnabled && !showLanguageSheet
+        )
+        return
+    }
 
     LaunchedEffect(isRefreshing) {
         delay(3000)
@@ -207,7 +233,7 @@ fun PageContent(
                             fontSize = fontSize,
                             fontFamily = fontFamily,
                             sharedScope = sharedScope,
-                            expanded = preferencesState.expandedSections,
+                            expanded = preferencesState.expandedSections || content.readerState.restoreExpandedSection == i + 2,
                             darkTheme = colorScheme.isDark(),
                             dataSaver = preferencesState.dataSaver,
                             renderMath = preferencesState.renderMath,

@@ -2,7 +2,7 @@
 
 <img src="app/src/main/ic_launcher-playstore.png" width="128">
 
-# WikiReader
+# eWikiReader
 
 </div>
 
@@ -62,7 +62,7 @@ Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia l
 
 ## Features
 
-Fork development: see the [e-ink paged-reading requirements and implementation plan](docs/paged-reading-plan.md), including Android Studio setup, device readiness, and emulator/Boox verification gates. The feature is currently planned.
+eWikiReader is a fork of [WikiReader by nsh07](https://github.com/nsh07/WikiReader), with an optional paged article reader for Android e-ink devices. See the [e-ink paged-reading requirements and implementation plan](docs/paged-reading-plan.md), including Android Studio setup, device readiness, and emulator/Boox verification gates. Enable **Paged reading** in Settings to use the back/forward arrow buttons or Page Up/Page Down (including Boox volume-key mappings). The expand icon beside the back arrow hides app toolbars, the navigation rail, and system bars; the collapse icon or Back restores them. The counter stays centered in `1 / 5` form. Sections expand automatically and tables reflow as labeled rows. Disable the setting to return to scrolling.
 
 - **Fast loading:** The article text is loaded before anything else, so you can get to reading,
   quick.

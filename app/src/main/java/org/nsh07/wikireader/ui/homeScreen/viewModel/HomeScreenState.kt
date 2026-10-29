@@ -36,6 +36,7 @@ sealed class HomeSubscreen {
         val title: String = "",
         val extract: List<List<AnnotatedString>> = emptyList(),
         val sections: List<Pair<Int, String>> = emptyList(),
+        val readerState: org.nsh07.wikireader.ui.homeScreen.reader.ArticleReaderState = org.nsh07.wikireader.ui.homeScreen.reader.ArticleReaderState(),
         val listState: LazyListState = LazyListState(),
         val photo: WikiPhoto? = null,
         val photoDesc: String? = null,

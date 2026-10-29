@@ -244,6 +244,13 @@ fun SettingsScreen(
     val switchItems = remember(preferencesState) {
         listOf(
             SettingsSwitchItem(
+                preferencesState.pagedReading,
+                R.drawable.expand_all,
+                string.paged_reading,
+                string.paged_reading_description,
+                SettingsAction::SavePagedReading
+            ),
+            SettingsSwitchItem(
                 preferencesState.blackTheme,
                 R.drawable.contrast,
                 string.settingBlackTheme,

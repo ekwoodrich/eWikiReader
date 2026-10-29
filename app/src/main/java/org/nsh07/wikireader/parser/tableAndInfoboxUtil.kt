@@ -310,7 +310,8 @@ suspend fun parseInfobox(
     typography: Typography,
     loadPage: (String) -> Unit,
     showRef: (String) -> Unit,
-    fontSize: Int
+    fontSize: Int,
+    includeMedia: Boolean = false
 ): List<Pair<AnnotatedString, AnnotatedString>> = withContext(Dispatchers.IO) {
     val rows = mutableListOf<Pair<AnnotatedString, AnnotatedString>>()
     val locale = Locale.getDefault()
@@ -379,5 +380,5 @@ suspend fun parseInfobox(
         )
     }
 
-    rows.fastFilter { !it.first.matches("Image|Caption|Alt|Alt .+".toRegex()) && it.second.isNotBlank() }
+    rows.fastFilter { (includeMedia || !it.first.matches("Image|Caption|Alt|Alt .+".toRegex())) && it.second.isNotBlank() }
 }

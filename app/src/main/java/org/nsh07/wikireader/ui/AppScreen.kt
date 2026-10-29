@@ -127,14 +127,14 @@ fun AppScreen(
 
     val searchBarScrollBehavior =
         if (
-            !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
-            preferencesState.immersiveMode
+            !preferencesState.pagedReading && (!windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
+            preferencesState.immersiveMode)
         ) TopAppBarDefaults.enterAlwaysScrollBehavior()
         else TopAppBarDefaults.pinnedScrollBehavior()
     val floatingToolbarScrollBehaviour =
         if (
-            !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
-            preferencesState.immersiveMode
+            !preferencesState.pagedReading && (!windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND) ||
+            preferencesState.immersiveMode)
         ) FloatingToolbarDefaults.exitAlwaysScrollBehavior(
             exitDirection = FloatingToolbarExitDirection.Bottom,
             snapAnimationSpec = motionScheme.defaultSpatialSpec()
@@ -150,7 +150,12 @@ fun AppScreen(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
+    val readerFullScreen = preferencesState.pagedReading &&
+        (backStack.last() as? HomeSubscreen.Article)?.readerState?.fullScreen == true &&
+        navBackStackEntry?.destination?.hasRoute(HomeScreen::class) == true
+
     AppNavigationDrawer(
+        hideChrome = readerFullScreen,
         state = railState,
         homeBackStackEntry = backStack.last(),
         windowSizeClass = windowSizeClass,
@@ -272,7 +277,7 @@ fun AppScreen(
 
                 Scaffold(
                     topBar = {
-                        AnimatedVisibility(
+                        if (!readerFullScreen) AnimatedVisibility(
                             backStack.last() !is HomeSubscreen.Image,
                             enter = slideInVertically(
                                 motionScheme.defaultSpatialSpec(),

@@ -61,7 +61,9 @@ fun ExpandableSection(
     onGalleryImageClick: (String, String) -> Unit,
     showRef: (String) -> Unit
 ) {
+    val initiallyExpanded = expanded
     var expanded by rememberSaveable { mutableStateOf(expanded) }
+    androidx.compose.runtime.LaunchedEffect(initiallyExpanded) { if (initiallyExpanded) expanded = true }
     val arrowRotation by animateFloatAsState(
         if (expanded) 180f else 0f,
         animationSpec = motionScheme.defaultSpatialSpec()

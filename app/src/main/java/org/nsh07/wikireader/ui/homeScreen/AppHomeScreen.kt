@@ -136,6 +136,8 @@ fun AppHomeScreen(
     windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
+    val readerFullScreen = preferencesState.pagedReading &&
+        (backStack.last() as? HomeSubscreen.Article)?.readerState?.fullScreen == true
     val clipboard = LocalClipboard.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -239,8 +241,8 @@ fun AppHomeScreen(
                     onAction(HomeAction.StopAll)
                     backStack.removeAt(backStack.lastIndex)
                 },
-                transitionSpec = { fadeIn().togetherWith(fadeOut()) },
-                popTransitionSpec = { fadeIn().togetherWith(fadeOut()) },
+                transitionSpec = { if (preferencesState.pagedReading) androidx.compose.animation.EnterTransition.None.togetherWith(androidx.compose.animation.ExitTransition.None) else fadeIn().togetherWith(fadeOut()) },
+                popTransitionSpec = { if (preferencesState.pagedReading) androidx.compose.animation.EnterTransition.None.togetherWith(androidx.compose.animation.ExitTransition.None) else fadeIn().togetherWith(fadeOut()) },
                 predictivePopTransitionSpec = { edge ->
                     if (backStack.size > 2 && backStack.last() !is HomeSubscreen.Image)
                         if (edge == NavigationEvent.EDGE_LEFT) {
@@ -312,7 +314,7 @@ fun AppHomeScreen(
                         )
                     }
 
-                    entry<HomeSubscreen.Article> { entry ->
+                    entry<HomeSubscreen.Article>(clazzContentKey = { it.readerState.navigationId }) { entry ->
                         LaunchedEffect(entry.currentLang) {
                             if (entry.currentLang != null)
                                 onSettingsAction(SettingsAction.SaveLang(entry.currentLang))
@@ -354,6 +356,7 @@ fun AppHomeScreen(
                             },
                             setSearchStr = { onAction(HomeAction.UpdateLanguageSearchStr(it)) },
                             onAction = onAction,
+                            pageKeysEnabled = !homeScreenState.showRef,
                             modifier = Modifier.background(colorScheme.surface)
                         )
                     }
@@ -410,7 +413,7 @@ fun AppHomeScreen(
             }
         }
 
-        AnimatedVisibility(
+        if (!readerFullScreen) AnimatedVisibility(
             backStack.last() !is HomeSubscreen.Image,
             enter = slideInVertically(
                 motionScheme.defaultSpatialSpec(),

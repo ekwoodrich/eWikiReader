@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="about">About</string>
     <string name="app">App</string>
     <string name="appTagline">Read Wikipedia pages distraction-free</string>
-    <string name="app_name">WikiReader</string>
+    <string name="app_name">eWikiReader</string>
     <string name="articleDeleted">Article deleted</string>
     <string name="articlesSize">%1$s articles, %2$s languages</string>
     <string name="author">Author</string>
@@ -73,7 +73,7 @@
     <string name="sections">Sections</string>
     <string name="selectedLabel">Selected</string>
     <string name="setAsDefault">Set as default</string>
-    <string name="setAsDefaultDesc">You can set WikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.</string>
+    <string name="setAsDefaultDesc">You can set eWikiReader as your default app for opening Wikipedia links. Click on the buttons below to know more or open settings.</string>
     <string name="settingAppLanguage">App language</string>
     <string name="settingBlackTheme">Black theme</string>
     <string name="settingBlackThemeDesc">Use a pure black dark theme</string>
@@ -114,7 +114,7 @@
     <string name="titleMatches">Title matches</string>
     <string name="topArticlesOTD">Top articles of the day</string>
     <string name="translate">Translate</string>
-    <string name="translateDesc">Help translating WikiReader into your language</string>
+    <string name="translateDesc">Help translating eWikiReader into your language</string>
     <string name="trendingArticles">Trending articles</string>
     <string name="unableToDeleteArticle">Unable to delete article: %1$s</string>
     <string name="up_arrow">Go to top</string>
@@ -136,4 +136,14 @@
     <string name="items">%1$s items</string>
     <string name="infobox">Infobox</string>
     <string name="historyDesc">Save article browsing history</string>
+    <string name="paged_reading" tools:ignore="MissingTranslation">Paged reading</string>
+    <string name="paged_reading_description" tools:ignore="MissingTranslation">Read articles one page at a time with Previous and Next. Sections stay expanded; tables reflow as rows. Scrolling remains available when disabled.</string>
+    <string name="reader_previous" tools:ignore="MissingTranslation">Previous</string>
+    <string name="reader_next" tools:ignore="MissingTranslation">Next</string>
+    <string name="reader_progress" tools:ignore="MissingTranslation">%1$d / %2$d</string>
+    <string name="reader_preparing" tools:ignore="MissingTranslation">Preparing pages…</string>
+    <string name="reader_row" tools:ignore="MissingTranslation">Row %1$d</string>
+    <string name="reader_column" tools:ignore="MissingTranslation">Column %1$d</string>
+    <string name="reader_enter_fullscreen" tools:ignore="MissingTranslation">Hide toolbars</string>
+    <string name="reader_exit_fullscreen" tools:ignore="MissingTranslation">Show toolbars</string>
 </resources>

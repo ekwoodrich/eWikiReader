@@ -201,10 +201,11 @@ class HomeScreenViewModel(
             is HomeAction.HideRef -> hideRef()
             is HomeAction.LoadRandom -> loadPage(title = null, random = true)
             is HomeAction.ScrollToTop -> viewModelScope.launch {
-                if (backStack.last() is HomeSubscreen.Article)
-                    (backStack[backStack.lastIndex] as HomeSubscreen.Article).listState.scrollToItem(
-                        0
-                    )
+                if (backStack.last() is HomeSubscreen.Article) {
+                    val article = backStack.last() as HomeSubscreen.Article
+                    if (article.readerState.pagedActive) article.readerState.goToSection(0)
+                    else article.listState.scrollToItem(0)
+                }
                 else if (backStack.last() is HomeSubscreen.Feed)
                     (backStack[backStack.lastIndex] as HomeSubscreen.Feed).listState.scrollToItem(0)
             }
@@ -483,6 +484,8 @@ class HomeScreenViewModel(
                         currentState.copy(isLoading = false)
                     }
                 } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    _homeScreenState.update { it.copy(isLoading = false) }
                     Log.e("ViewModel", "Error in fetching results: ${e.message}")
                     e.printStackTrace()
                     backStack.add(
@@ -608,6 +611,7 @@ class HomeScreenViewModel(
                         currentState.copy(isLoading = false)
                     }
                 } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     Log.e("ViewModel", "Error in loading feed: ${e.message}")
                     backStack[0] = HomeSubscreen.Logo
                     _homeScreenState.update { currentState ->
@@ -812,9 +816,7 @@ class HomeScreenViewModel(
                                     typography = typography,
                                     loadPage = ::loadPage,
                                     fontSize = preferencesState.value.fontSize,
-                                    showRef = {
-
-                                    }
+                                    showRef = ::updateRef
                                 )
                             )
                             out.add(AnnotatedString(currSubstring))

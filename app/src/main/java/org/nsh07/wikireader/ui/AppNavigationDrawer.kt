@@ -74,6 +74,7 @@ fun AppNavigationDrawer(
     onSavedArticlesClick: () -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
+    hideChrome: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -132,7 +133,7 @@ fun AppNavigationDrawer(
     }
 
     Row(modifier = modifier) {
-        AnimatedVisibility(
+        if (!hideChrome) AnimatedVisibility(
             visible = !isImageView,
             enter = expandHorizontally(animationSpec = motionScheme.defaultSpatialSpec()),
             exit = shrinkHorizontally(animationSpec = motionScheme.defaultSpatialSpec())
@@ -327,12 +328,16 @@ private fun AppNavigationRailContent(
                                     modifier = Modifier.widthIn(max = boxWidth - 96.dp)
                                 )
                             },
-                            selected = homeBackStackEntry.listState.firstVisibleItemIndex == section.first ||
+                            selected = if (homeBackStackEntry.readerState.pagedActive)
+                                homeBackStackEntry.readerState.section == section.first
+                            else homeBackStackEntry.listState.firstVisibleItemIndex == section.first ||
                                     homeBackStackEntry.listState.firstVisibleItemIndex == section.first + 1,
                             onClick = {
                                 scope.launch {
                                     if (!expandedScreen) state.collapse()
-                                    homeBackStackEntry.listState.scrollToItem(section.first)
+                                    if (homeBackStackEntry.readerState.pagedActive)
+                                        homeBackStackEntry.readerState.goToSection(section.first)
+                                    else homeBackStackEntry.listState.scrollToItem(section.first)
                                 }
                             },
                             icon = {

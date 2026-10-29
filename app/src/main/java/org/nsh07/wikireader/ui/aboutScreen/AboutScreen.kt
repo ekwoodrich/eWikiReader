@@ -122,11 +122,11 @@ fun AboutScreen(
                             Icon(painterResource(R.drawable.code), null)
                         },
                         headlineContent = { Text(stringResource(R.string.sourceCode)) },
-                        supportingContent = { Text("GitHub") },
+                        supportingContent = { Text("eWikiReader · GitHub") },
                         colors = listItemColors,
                         items = 6,
                         index = 2
-                    ) { uriHandler.openUri("https://github.com/nsh07/WikiReader") }
+                    ) { uriHandler.openUri("https://github.com/ekwoodrich/eWikiReader") }
                     ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.gavel), null)
@@ -136,7 +136,7 @@ fun AboutScreen(
                         colors = listItemColors,
                         items = 6,
                         index = 3
-                    ) { uriHandler.openUri("https://github.com/nsh07/WikiReader/blob/main/LICENSE") }
+                    ) { uriHandler.openUri("https://github.com/ekwoodrich/eWikiReader/blob/main/LICENSE") }
                     ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.update), null)
@@ -146,7 +146,7 @@ fun AboutScreen(
                         colors = listItemColors,
                         items = 6,
                         index = 4
-                    ) { uriHandler.openUri("https://github.com/nsh07/WikiReader/releases") }
+                    ) { uriHandler.openUri("https://github.com/ekwoodrich/eWikiReader/releases") }
                     ClickableListItem(
                         leadingContent = {
                             Icon(painterResource(R.drawable.translate), null)
