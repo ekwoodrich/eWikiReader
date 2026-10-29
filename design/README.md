@@ -1,6 +1,6 @@
 # eWikiReader icon
 
-`ewikireader-icon.svg` is the editable source: the supplied open-book motif is adapted to sit inside a portrait e-reader screen, with a bezel and a single navigation button. Artwork uses opaque black with a transparent background. Its inset keeps it inside Android's adaptive-icon safe circle.
+`ewikireader-icon.svg` is the exact SVG supplied by the user: two filled book-page polygons and two rounded page-edge strokes. No frame, button, or other imagery is added. Android vectors retain all geometry and stroke proportions, uniformly scaling to 75% and centering the SVG viewport within the adaptive-icon safe circle.
 
 Android vectors are `app/src/main/res/drawable/ic_launcher_monochrome.xml` and the identical `ic_launcher_foreground.xml` (used by About). Keep both synchronized when editing the SVG. The adaptive icon uses the monochrome vector for both `foreground` and `monochrome`, with the existing white background. Android 11 therefore displays black on white without requiring themed-icon support. On newer Android launchers, the OS may tint the monochrome layer according to the system theme.
 

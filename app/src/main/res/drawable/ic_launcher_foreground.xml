@@ -1,26 +1,21 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="36"
-    android:viewportHeight="36">
-    <!-- Source: design/ewikireader-icon.svg. Single-color art within the adaptive safe circle. -->
-    <group android:scaleX="0.86" android:scaleY="0.86"
-        android:translateX="2.52" android:translateY="2.52">
-        <path android:fillColor="#00000000" android:strokeColor="#FF000000"
-            android:strokeWidth="1.4" android:strokeLineJoin="round"
-            android:pathData="M11,6 H25 Q27,6 27,8 V28 Q27,30 25,30 H11 Q9,30 9,28 V8 Q9,6 11,6 Z" />
-        <path android:fillColor="#00000000" android:strokeColor="#FF000000"
-            android:strokeWidth="1" android:strokeLineJoin="round"
-            android:pathData="M11.6,9 H24.4 Q25,9 25,9.6 V24.4 Q25,25 24.4,25 H11.6 Q11,25 11,24.4 V9.6 Q11,9 11.6,9 Z" />
-        <path android:fillColor="#00000000" android:strokeColor="#FF000000"
-            android:strokeWidth="1" android:strokeLineCap="round"
-            android:pathData="M15,11 H21" />
+    android:viewportWidth="27"
+    android:viewportHeight="27">
+    <!-- Supplied SVG geometry, uniformly inset into the adaptive-icon safe circle.
+         Mapping: 0.75 * (coordinate - 3) + 3.375. -->
+    <group android:scaleX="0.75" android:scaleY="0.75"
+        android:translateX="1.125" android:translateY="1.125">
         <path android:fillColor="#FF000000"
-            android:pathData="M12,13.5 L17.4,16.4 V20.2 L12,17.3 Z M24,13.5 L18.6,16.4 V20.2 L24,17.3 Z" />
-        <path android:fillColor="#00000000" android:strokeColor="#FF000000"
-            android:strokeWidth="0.9" android:strokeLineCap="round"
-            android:pathData="M12,18.9 L17.4,21.8 M24,18.9 L18.6,21.8" />
+            android:pathData="M7,11 L15.5,15.5 L15.5,21.5 L7,17 Z" />
         <path android:fillColor="#FF000000"
-            android:pathData="M17.2,27.5 a0.8,0.8 0,1 0,1.6 0 a0.8,0.8 0,1 0,-1.6 0" />
+            android:pathData="M26,11 L17.5,15.5 L17.5,21.5 L26,17 Z" />
+        <path android:fillColor="#00000000" android:strokeColor="#FF000000"
+            android:strokeWidth="1.2" android:strokeLineCap="round"
+            android:pathData="M7,18.5 L15.5,23" />
+        <path android:fillColor="#00000000" android:strokeColor="#FF000000"
+            android:strokeWidth="1.2" android:strokeLineCap="round"
+            android:pathData="M26,18.5 L17.5,23" />
     </group>
 </vector>
