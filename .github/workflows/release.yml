@@ -20,7 +20,11 @@ jobs:
           contains(github.event.pull_request.labels.*.name, 'release') ||
           contains(github.event.pull_request.labels.*.name, 'release:patch') ||
           contains(github.event.pull_request.labels.*.name, 'release:minor') ||
-          contains(github.event.pull_request.labels.*.name, 'release:major')
+          contains(github.event.pull_request.labels.*.name, 'release:major') ||
+          contains(github.event.pull_request.labels.*.name, 'release:replace') ||
+          contains(github.event.pull_request.labels.*.name, 'release:patch:replace') ||
+          contains(github.event.pull_request.labels.*.name, 'release:minor:replace') ||
+          contains(github.event.pull_request.labels.*.name, 'release:major:replace')
         )) ||
         (github.event.pull_request.base.ref == 'dev' &&
           contains(github.event.pull_request.labels.*.name, 'dev-build'))
@@ -60,15 +64,22 @@ jobs:
               echo "new_tag=${NEW_TAG}"
               echo "version_code=$(git rev-list --count HEAD)"
               echo "apk_name=eWikiReader-${NEW_TAG}.apk"
+              echo "release_name=eWikiReader ${NEW_TAG}"
+              echo "is_replace=false"
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          if echo "$PR_LABELS" | jq -e 'index("release:major") != null' >/dev/null; then
+          IS_REPLACE=$(echo "$PR_LABELS" | jq -r 'any(.[]; . == "release:replace" or endswith(":replace"))')
+          if [ "$IS_REPLACE" = "true" ]; then
+            echo "Replacement release requested."
+          fi
+
+          if echo "$PR_LABELS" | jq -e 'index("release:major") != null or index("release:major:replace") != null' >/dev/null; then
             BUMP_TYPE="major"
-          elif echo "$PR_LABELS" | jq -e 'index("release:minor") != null' >/dev/null; then
+          elif echo "$PR_LABELS" | jq -e 'index("release:minor") != null or index("release:minor:replace") != null' >/dev/null; then
             BUMP_TYPE="minor"
-          elif echo "$PR_LABELS" | jq -e 'index("release:patch") != null or index("release") != null' >/dev/null; then
+          elif echo "$PR_LABELS" | jq -e 'index("release:patch") != null or index("release:patch:replace") != null or index("release") != null or index("release:replace") != null' >/dev/null; then
             BUMP_TYPE="patch"
           else
             echo "No release label found on PR. Exiting."
@@ -76,6 +87,10 @@ jobs:
           fi
 
           LAST_TAG=$(git tag -l "v*" --sort=-v:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$/{print; exit}')
+          if [ "$IS_REPLACE" = "true" ] && [ -z "$LAST_TAG" ]; then
+            echo "Cannot replace a release because no prior stable version tag exists."
+            exit 1
+          fi
           if [ -z "$LAST_TAG" ]; then
             echo "No prior *-eink tag found; initializing baseline as v0.99.0-eink"
             LAST_TAG="v0.99.0-eink"
@@ -86,25 +101,29 @@ jobs:
           BASE_VERSION="${BASE_VERSION%-eink}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
 
-          case "$BUMP_TYPE" in
-            major)
-              MAJOR=$((MAJOR + 1))
-              MINOR=0
-              PATCH=0
-              ;;
-            minor)
-              MINOR=$((MINOR + 1))
-              PATCH=0
-              ;;
-            patch)
-              PATCH=$((PATCH + 1))
-              ;;
-          esac
-
-          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-          NEW_TAG="v${NEW_VERSION}"
+          if [ "$IS_REPLACE" = "true" ]; then
+            NEW_VERSION="$BASE_VERSION"
+            NEW_TAG="$LAST_TAG"
+          else
+            case "$BUMP_TYPE" in
+              major)
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                PATCH=0
+                ;;
+              minor)
+                MINOR=$((MINOR + 1))
+                PATCH=0
+                ;;
+              patch)
+                PATCH=$((PATCH + 1))
+                ;;
+            esac
+            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+            NEW_TAG="v${NEW_VERSION}"
+          fi
           VERSION_CODE=$(git rev-list --count HEAD)
-          APK_NAME="eWikiReader-${NEW_TAG}.apk"
+          APK_NAME="eWikiReader-v${NEW_VERSION}.apk"
 
           echo "New version: $NEW_VERSION (tag: $NEW_TAG, versionCode: $VERSION_CODE)"
 
@@ -129,11 +148,13 @@ jobs:
 
           {
             echo "is_dev=false"
+            echo "is_replace=${IS_REPLACE}"
             echo "last_tag=${LAST_TAG}"
             echo "new_version=${NEW_VERSION}"
             echo "new_tag=${NEW_TAG}"
             echo "version_code=${VERSION_CODE}"
             echo "apk_name=${APK_NAME}"
+            echo "release_name=eWikiReader v${NEW_VERSION}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 21
@@ -187,6 +208,22 @@ jobs:
           NEW_TAG="${{ steps.version.outputs.new_tag }}"
           NOTES_FILE="${RUNNER_TEMP}/release_notes.md"
           TMP_CHANGELOG="${RUNNER_TEMP}/CHANGELOG.md.tmp"
+          EXISTING_SECTIONS="${RUNNER_TEMP}/existing_changelog_sections.md"
+
+          if [ "${{ steps.version.outputs.is_replace }}" = "true" ] && [ -f CHANGELOG.md ]; then
+            awk -v target="## [${NEW_TAG}]" '
+              /^## \[/ {
+                if (index($0, target) == 1) { skip=1; next }
+                skip=0
+                found=1
+              }
+              found && !skip { print }
+            ' CHANGELOG.md > "$EXISTING_SECTIONS"
+          elif [ -f CHANGELOG.md ]; then
+            awk 'found { print } /^## \[/ { found=1; print }' CHANGELOG.md > "$EXISTING_SECTIONS"
+          else
+            : > "$EXISTING_SECTIONS"
+          fi
 
           {
             echo "# Changelog"
@@ -197,9 +234,7 @@ jobs:
             echo ""
             cat "$NOTES_FILE"
             echo ""
-            if [ -f CHANGELOG.md ]; then
-              awk 'found { print } /^## \[/ { found=1; print }' CHANGELOG.md
-            fi
+            cat "$EXISTING_SECTIONS"
           } > "$TMP_CHANGELOG"
 
           mv "$TMP_CHANGELOG" CHANGELOG.md
@@ -216,19 +251,38 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           NEW_TAG="${{ steps.version.outputs.new_tag }}"
-          git tag -a "$NEW_TAG" -m "Release $NEW_TAG"
-          git push origin "$NEW_TAG"
+          if [ "${{ steps.version.outputs.is_replace }}" = "true" ]; then
+            git tag -fa "$NEW_TAG" -m "Replace release $NEW_TAG"
+            git push --force origin "$NEW_TAG"
+          else
+            git tag -a "$NEW_TAG" -m "Release $NEW_TAG"
+            git push origin "$NEW_TAG"
+          fi
+
+      - name: Remove previous GitHub Release before replacement
+        if: steps.version.outputs.is_replace == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.version.outputs.new_tag }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" --yes
+          else
+            echo "No existing GitHub Release for $TAG; creating it from the replacement build."
+          fi
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.new_tag }}
-          name: eWikiReader ${{ steps.version.outputs.new_tag }}
+          name: ${{ steps.version.outputs.release_name }}
           body_path: ${{ runner.temp }}/release_notes.md
           files: ${{ steps.version.outputs.apk_name }}
           prerelease: ${{ steps.version.outputs.is_dev == 'true' }}
           make_latest: ${{ steps.version.outputs.is_dev == 'true' && 'false' || 'true' }}
           fail_on_unmatched_files: true
+          overwrite_files: true
 
       - name: Remove temporary signing keystore
         if: always()

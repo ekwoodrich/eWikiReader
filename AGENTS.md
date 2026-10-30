@@ -17,8 +17,11 @@
 | Signed dev build (`release.yml`) | PR **merged into `dev`**, labeled `dev-build` before merge | Signed GitHub prerelease `dev-<short merge SHA>`, APK `eWikiReader-dev-<SHA>.apk` |
 | Stable patch (`release.yml`) | PR **merged into `main`**, labeled `release:patch` or `release` | Next `vX.Y.Z` release, signed APK, committed `CHANGELOG.md` |
 | Stable minor/major | Same, labeled `release:minor` / `release:major` | Corresponding version bump |
+| Stable replacement | PR **merged into `main`**, labeled `release:replace` or `release:<patch|minor|major>:replace` | Rebuild the latest stable version number, replace its changelog section and GitHub Release, and upload a newly signed APK |
 
 Opening a PR, adding a label after merge, closing it without merge, or pushing `dev` alone does not publish a signed build. Apply one intended build label before merging. Dev builds use the exact PR merge commit hash, have versionName `dev-<SHA>`, do not change `CHANGELOG.md`, and do not replace the latest stable release. Stable and dev publication share one signing/build pipeline. See [workflow details](docs/workflow-plan-v1.md).
+
+Replacement releases keep the most recent stable version number and existing stable tag (including the historical `-eink` tag spelling if that is the latest tag). The APK filename and release title use the clean `vX.Y.Z` form. The workflow builds and verifies the signed APK before updating the changelog/tag and deleting/recreating the associated GitHub Release. Use this for corrective rebuilds; do not use it for ordinary feature releases.
 
 ## Project skills
 

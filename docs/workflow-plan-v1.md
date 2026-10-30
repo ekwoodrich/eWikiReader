@@ -21,6 +21,7 @@ Project instructions are in `AGENTS.md`; discoverable project skills live in `.a
 | `main` | `release` or `release:patch` | Stable patch |
 | `main` | `release:minor` | Stable minor |
 | `main` | `release:major` | Stable major |
+| `main` | `release:replace` or `release:patch:replace` / `release:minor:replace` / `release:major:replace` | Replace the latest stable release without incrementing its version |
 | `dev` | `dev-build` | Signed dev prerelease |
 
 Apply exactly one intended label before merging. Opening a PR, a label added after merge, an unmerged closed PR, an unlabeled merge, or a direct push does not publish a signed build. The workflow serializes signed publishing runs and does not cancel a running publication.
@@ -38,6 +39,8 @@ Both APK types have package `io.github.ekwoodrich.ewikireader` and the same sign
 Stable tags, versionNames, and release names use `vX.Y.Z` / `X.Y.Z`; stable APK names are `eWikiReader-vX.Y.Z.apk`. Version selection accepts exact `vMAJOR.MINOR.PATCH` tags and the historical `vMAJOR.MINOR.PATCH-eink` tags, but ignores `dev-*` tags and other tag formats. The initial fallback baseline is `v0.99.0-eink`; the first successful fork release was `v0.99.1-eink`; the next stable release will be `v0.99.2`. Bump precedence for accidentally combined labels is major, minor, then patch; select one label intentionally.
 
 Stable versionName is `X.Y.Z`, GitHub tag and title include `vX.Y.Z`, and APK name is `eWikiReader-vX.Y.Z.apk`. Notes collect non-merge conventional commit subjects since the last stable tag, falling back to all non-merge subjects when necessary. The workflow builds first, then prepends `CHANGELOG.md`, commits it as `chore(release): ... [skip ci]`, pushes `HEAD:main`, tags that changelog commit, and publishes a normal GitHub Release as latest. The built source is the PR merge commit; the tag additionally includes the generated changelog commit. Bot contents-write permission and permission to push `main` are required.
+
+Replacement labels reuse the latest exact stable tag/version (including a historical `-eink` tag if that is still the latest). They do not increment the version. The signed APK is built and verified first; only then does the workflow replace that version's changelog section, update the existing tag to the newly generated changelog commit, and delete/recreate the GitHub Release. The recreated release title and APK filename use the clean `vX.Y.Z` form even if the preserved historical tag includes `-eink`. A failure during release recreation can leave the release temporarily absent; rerun the same replacement PR workflow to restore it.
 
 ## Dev build details
 
