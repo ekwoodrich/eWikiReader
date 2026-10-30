@@ -23,6 +23,8 @@ Opening a PR, adding a label after merge, closing it without merge, or pushing `
 
 Stable Git tags use `vX.Y.Z-release` to distinguish this fork's tags from upstream. Historical unsuffixed and `-eink` tags remain recognized for version lookup. Replacement releases keep the latest stable version number, migrate its tag to `vX.Y.Z-release`, and use the clean `vX.Y.Z` release title and APK filename. The workflow builds and verifies the signed APK before updating the changelog/tag and deleting/recreating the associated GitHub Release. Use this for corrective rebuilds; do not use it for ordinary feature releases.
 
+The `main` ruleset requires all changes through a PR. After signature verification, the release workflow creates and merges a bot-authored changelog PR, then tags the resulting `main` commit and publishes the release. Do not change this step to push directly to `main`.
+
 ## Project skills
 
 - `.agents/skills/ewikireader-merge-dev/SKILL.md`: integrate a working branch into `dev`.
