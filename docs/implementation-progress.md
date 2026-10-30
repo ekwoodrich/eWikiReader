@@ -17,3 +17,7 @@ Lint was run and failed with 170 errors / 43 warnings before the debug label was
 ## Pagination implementation
 
 Pagination, eWikiReader branding and full-screen reading are implemented. See [the implementation and verification report](pagination-implementation-report.md) for design decisions, tests, evidence, build instructions and remaining limits. Full-screen reading hides app/tool/system bars while keeping a compact 48 dp row with symmetric arrow buttons, an independently centered `current / total` position, and a visible exit toggle. Back exits full screen before leaving the article.
+
+## Device transport update (2026-10-30)
+
+The physical Boox Page is now connected through fixed TCP/IP ADB at `10.0.0.72:5555`, with USB unplugged. Use `adb -s 10.0.0.72:5555 ...` for device commands; `adb connect 10.0.0.72:5555` reconnects when needed. The emulator remains `emulator-5554`. Both transports were confirmed in `adb devices -l`. Continue targeting Android user 0 explicitly when installing APKs to avoid installing into the work profile.

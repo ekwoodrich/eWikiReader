@@ -117,11 +117,36 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Compile and package release APK
+      - name: Prepare release signing keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          ./gradlew assembleRelease \
+          set -euo pipefail
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing repository secret: ${name}"
+              exit 1
+            fi
+          done
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "${RUNNER_TEMP}/ewikireader-release.jks"
+
+      - name: Compile and package release APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/ewikireader-release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          ./gradlew --no-configuration-cache assembleRelease \
             -PversionName="${{ steps.version.outputs.new_version }}" \
             -PversionCode="${{ steps.version.outputs.version_code }}"
+          APKSIGNER=$(find "${ANDROID_HOME}/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          "$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk
           cp app/build/outputs/apk/release/app-release.apk "${{ steps.version.outputs.apk_name }}"
           ls -lh "${{ steps.version.outputs.apk_name }}"
 
@@ -169,3 +194,7 @@ jobs:
           name: eWikiReader ${{ steps.version.outputs.new_tag }}
           body_path: ${{ runner.temp }}/release_notes.md
           files: ${{ steps.version.outputs.apk_name }}
+
+      - name: Remove temporary signing keystore
+        if: always()
+        run: rm -f "${RUNNER_TEMP}/ewikireader-release.jks"

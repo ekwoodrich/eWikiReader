@@ -16,3 +16,8 @@ local.properties
 /.kotlin
 api-reference.json
 .idea
+# Private signing material and Android Studio release output
+*.jks
+*.keystore
+keystore.properties
+/app/release/
