@@ -54,7 +54,7 @@ jobs:
             SHORT_SHA=$(git rev-parse --short=7 HEAD)
             NEW_TAG="dev-${SHORT_SHA}"
             printf 'Development build from commit `%s`.\n\n' "$(git rev-parse HEAD)" > "${RUNNER_TEMP}/release_notes.md"
-            BASE_TAG=$(git tag -l "v*" --sort=-v:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$/{print; exit}')
+            BASE_TAG=$(git tag -l "v*" --sort=-v:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+(-release|-eink)?$/{print; exit}')
             LOG_RANGE="HEAD"
             if [ -n "$BASE_TAG" ]; then LOG_RANGE="${BASE_TAG}..HEAD"; fi
             git log "$LOG_RANGE" --no-merges --pretty=format:'- %s' >> "${RUNNER_TEMP}/release_notes.md"
@@ -64,7 +64,7 @@ jobs:
               echo "new_tag=${NEW_TAG}"
               echo "version_code=$(git rev-list --count HEAD)"
               echo "apk_name=eWikiReader-${NEW_TAG}.apk"
-              echo "release_name=eWikiReader ${NEW_TAG}"
+              echo "release_name=${NEW_TAG}"
               echo "is_replace=false"
             } >> "$GITHUB_OUTPUT"
             exit 0
@@ -86,24 +86,25 @@ jobs:
             exit 1
           fi
 
-          LAST_TAG=$(git tag -l "v*" --sort=-v:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$/{print; exit}')
+          LAST_TAG=$(git tag -l "v*" --sort=-v:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+(-release|-eink)?$/{print; exit}')
           if [ "$IS_REPLACE" = "true" ] && [ -z "$LAST_TAG" ]; then
             echo "Cannot replace a release because no prior stable version tag exists."
             exit 1
           fi
           if [ -z "$LAST_TAG" ]; then
-            echo "No prior *-eink tag found; initializing baseline as v0.99.0-eink"
-            LAST_TAG="v0.99.0-eink"
+            echo "No prior stable tag found; initializing baseline as v0.99.0-release"
+            LAST_TAG="v0.99.0-release"
           fi
           echo "Previous tag: $LAST_TAG (increment: $BUMP_TYPE)"
 
           BASE_VERSION="${LAST_TAG#v}"
+          BASE_VERSION="${BASE_VERSION%-release}"
           BASE_VERSION="${BASE_VERSION%-eink}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
 
           if [ "$IS_REPLACE" = "true" ]; then
             NEW_VERSION="$BASE_VERSION"
-            NEW_TAG="$LAST_TAG"
+            NEW_TAG="v${NEW_VERSION}-release"
           else
             case "$BUMP_TYPE" in
               major)
@@ -120,7 +121,7 @@ jobs:
                 ;;
             esac
             NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-            NEW_TAG="v${NEW_VERSION}"
+            NEW_TAG="v${NEW_VERSION}-release"
           fi
           VERSION_CODE=$(git rev-list --count HEAD)
           APK_NAME="eWikiReader-v${NEW_VERSION}.apk"
@@ -154,7 +155,7 @@ jobs:
             echo "new_tag=${NEW_TAG}"
             echo "version_code=${VERSION_CODE}"
             echo "apk_name=${APK_NAME}"
-            echo "release_name=eWikiReader v${NEW_VERSION}"
+            echo "release_name=v${NEW_VERSION}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 21
@@ -211,9 +212,9 @@ jobs:
           EXISTING_SECTIONS="${RUNNER_TEMP}/existing_changelog_sections.md"
 
           if [ "${{ steps.version.outputs.is_replace }}" = "true" ] && [ -f CHANGELOG.md ]; then
-            awk -v target="## [${NEW_TAG}]" '
+            awk -v old_target="## [${LAST_TAG}]" -v new_target="## [${NEW_TAG}]" '
               /^## \[/ {
-                if (index($0, target) == 1) { skip=1; next }
+                if (index($0, old_target) == 1 || index($0, new_target) == 1) { skip=1; next }
                 skip=0
                 found=1
               }
@@ -254,6 +255,10 @@ jobs:
           if [ "${{ steps.version.outputs.is_replace }}" = "true" ]; then
             git tag -fa "$NEW_TAG" -m "Replace release $NEW_TAG"
             git push --force origin "$NEW_TAG"
+            if [ "$NEW_TAG" != "${{ steps.version.outputs.last_tag }}" ] && \
+              git ls-remote --exit-code --tags origin "refs/tags/${{ steps.version.outputs.last_tag }}" >/dev/null; then
+              git push origin --delete "${{ steps.version.outputs.last_tag }}"
+            fi
           else
             git tag -a "$NEW_TAG" -m "Release $NEW_TAG"
             git push origin "$NEW_TAG"
@@ -265,12 +270,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.version.outputs.new_tag }}"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release delete "$TAG" --yes
-          else
-            echo "No existing GitHub Release for $TAG; creating it from the replacement build."
-          fi
+          OLD_TAG="${{ steps.version.outputs.last_tag }}"
+          NEW_TAG="${{ steps.version.outputs.new_tag }}"
+          for TAG in "$OLD_TAG" "$NEW_TAG"; do
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              gh release delete "$TAG" --yes
+            else
+              echo "No existing GitHub Release for $TAG."
+            fi
+          done
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
