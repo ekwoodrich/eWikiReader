@@ -1,20 +1,29 @@
-name: Release Build & Publish
+name: Signed Build & Publish
 
 on:
   pull_request:
     types: [closed]
     branches:
       - main
+      - dev
+
+concurrency:
+  group: ewikireader-signed-publish
+  cancel-in-progress: false
 
 jobs:
   release:
-    name: Build & Publish eWikiReader Release
+    name: Build & Publish signed eWikiReader APK
     if: >-
       github.event.pull_request.merged == true && (
-        contains(github.event.pull_request.labels.*.name, 'release') ||
-        contains(github.event.pull_request.labels.*.name, 'release:patch') ||
-        contains(github.event.pull_request.labels.*.name, 'release:minor') ||
-        contains(github.event.pull_request.labels.*.name, 'release:major')
+        (github.event.pull_request.base.ref == 'main' && (
+          contains(github.event.pull_request.labels.*.name, 'release') ||
+          contains(github.event.pull_request.labels.*.name, 'release:patch') ||
+          contains(github.event.pull_request.labels.*.name, 'release:minor') ||
+          contains(github.event.pull_request.labels.*.name, 'release:major')
+        )) ||
+        (github.event.pull_request.base.ref == 'dev' &&
+          contains(github.event.pull_request.labels.*.name, 'dev-build'))
       )
     runs-on: ubuntu-latest
     permissions:
@@ -25,7 +34,7 @@ jobs:
       - name: Checkout repository with full history
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
           fetch-depth: 0
           fetch-tags: true
 
@@ -33,8 +42,27 @@ jobs:
         id: version
         env:
           PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
           set -euo pipefail
+
+          if [ "$BASE_BRANCH" = "dev" ]; then
+            SHORT_SHA=$(git rev-parse --short=7 HEAD)
+            NEW_TAG="dev-${SHORT_SHA}"
+            printf 'Development build from commit `%s`.\n\n' "$(git rev-parse HEAD)" > "${RUNNER_TEMP}/release_notes.md"
+            BASE_TAG=$(git tag -l "v*-eink" --sort=-v:refname | sed -n '1p')
+            LOG_RANGE="HEAD"
+            if [ -n "$BASE_TAG" ]; then LOG_RANGE="${BASE_TAG}..HEAD"; fi
+            git log "$LOG_RANGE" --no-merges --pretty=format:'- %s' >> "${RUNNER_TEMP}/release_notes.md"
+            {
+              echo "is_dev=true"
+              echo "new_version=${NEW_TAG}"
+              echo "new_tag=${NEW_TAG}"
+              echo "version_code=$(git rev-list --count HEAD)"
+              echo "apk_name=eWikiReader-${NEW_TAG}.apk"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
           if echo "$PR_LABELS" | jq -e 'index("release:major") != null' >/dev/null; then
             BUMP_TYPE="major"
@@ -47,7 +75,7 @@ jobs:
             exit 1
           fi
 
-          LAST_TAG=$(git tag -l "v*-eink" --sort=-v:refname | head -n 1)
+          LAST_TAG=$(git tag -l "v*-eink" --sort=-v:refname | sed -n '1p')
           if [ -z "$LAST_TAG" ]; then
             echo "No prior *-eink tag found; initializing baseline as v0.99.0-eink"
             LAST_TAG="v0.99.0-eink"
@@ -100,6 +128,7 @@ jobs:
           printf "%s\n" "$NOTES" > "${RUNNER_TEMP}/release_notes.md"
 
           {
+            echo "is_dev=false"
             echo "last_tag=${LAST_TAG}"
             echo "new_version=${NEW_VERSION}"
             echo "new_tag=${NEW_TAG}"
@@ -151,6 +180,7 @@ jobs:
           ls -lh "${{ steps.version.outputs.apk_name }}"
 
       - name: Update CHANGELOG.md and commit to main
+        if: steps.version.outputs.is_dev != 'true'
         run: |
           set -euo pipefail
           RELEASE_DATE=$(date -u +"%Y-%m-%d")
@@ -178,7 +208,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
           git commit -m "chore(release): update CHANGELOG.md for ${NEW_TAG} [skip ci]"
-          git push origin main
+          git push origin HEAD:main
 
       - name: Tag release commit
         run: |
@@ -194,6 +224,9 @@ jobs:
           name: eWikiReader ${{ steps.version.outputs.new_tag }}
           body_path: ${{ runner.temp }}/release_notes.md
           files: ${{ steps.version.outputs.apk_name }}
+          prerelease: ${{ steps.version.outputs.is_dev == 'true' }}
+          make_latest: ${{ steps.version.outputs.is_dev == 'true' && 'false' || 'true' }}
+          fail_on_unmatched_files: true
 
       - name: Remove temporary signing keystore
         if: always()
