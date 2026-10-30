@@ -4,141 +4,68 @@
 
 # eWikiReader
 
-</div>
+Wikipedia reading with optional pagination for Android e-ink devices.
 
----
-
-<div align="center">
-
-<a href="https://hosted.weblate.org/engage/wikireader/?utm_source=widget">
-  <img src="https://img.shields.io/weblate/progress/wikireader?logo=weblate&labelColor=1a1a1a&color=2ecba9">
-</a>
-<a href="https://github.com/ekwoodrich/eWikiReader/releases/latest">
-  <img src="https://img.shields.io/github/v/release/ekwoodrich/eWikiReader?logo=github&labelColor=1a1a1a">
-</a>
-<a href="https://f-droid.org/packages/org.nsh07.wikireader">
-  <img src="https://img.shields.io/f-droid/v/org.nsh07.wikireader?logo=f-droid&labelColor=1a1a1a">
-</a>
-<a href="https://github.com/nsh07/WikiReader/blob/main/LICENSE">
-  <img src="https://img.shields.io/github/license/nsh07/wikireader?logo=gnu&color=blue&labelColor=1a1a1a">
-</a>
-<img src="https://img.shields.io/badge/API-26+-blue?logo=android&labelColor=1a1a1a">
-<br/><br/>
-
-A lightweight Android app for reading Wikipedia articles distraction-free
-
-Supports light mode, dark mode, Material You dynamic colors and 300+ Wikipedia languages
-
-<p>
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/org.nsh07.wikireader">
-    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200">
-  </a>
-  <a href="https://f-droid.org/packages/org.nsh07.wikireader">
-      <img src="https://f-droid.org/badge/get-it-on.png" width="200">
-  </a>
-</p>
-<p>
-  <a href="https://hosted.weblate.org/engage/wikireader/">
-    <img src="https://hosted.weblate.org/widget/wikireader/287x66-black.png" alt="Translation status" />
-  </a>
-</p>
+[Latest stable release](https://github.com/ekwoodrich/eWikiReader/releases/latest) · [All builds](https://github.com/ekwoodrich/eWikiReader/releases) · [Upstream WikiReader](https://github.com/nsh07/WikiReader)
 
 </div>
 
----
+eWikiReader is a fork of **[WikiReader by nsh07](https://github.com/nsh07/WikiReader)**. It builds on the original app's Wikipedia browsing, search, article rendering, and offline reading, adding a page-by-page reading experience for e-ink devices such as the Onyx Boox Page. The fork is maintained separately from upstream WikiReader.
 
-## Screenshots
+## What this fork adds
 
-<p align="center" width="100%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="30%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="30%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="30%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="30%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="30%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="30%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="30%">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width="60%">
-</p>
+- **Paged reading:** Switch between scrolling and page-by-page article navigation in Settings. Sections stay expanded, and tables reflow as labeled rows.
+- **More reading space:** Hide app toolbars and system bars with the reader's expand button; restore them with the collapse button or Back.
+- **Compact navigation:** Back/forward icons with a centered position such as `1 / 5`.
+- **Optional volume-button navigation:** In paged mode, Volume Up goes back and Volume Down goes forward. Page Up/Down keyboard navigation is also supported.
+- **Optional reduced motion:** Disable interface animations in either reading mode. Animated images start paused with individual Play/Pause controls.
+- **Image-loading safeguards:** Bounded image decoding to reduce memory pressure from large article images.
+- **A monochrome icon:** The supplied open-book artwork is used for the launcher and themed icon.
 
-## Features
+The app retains upstream features including Wikipedia search and feeds, saved articles for offline reading, article languages, text-size and font choices, light/dark themes, data saver, and mathematical expressions. Settings that do not apply to paged reading are disabled while that mode is active.
 
-eWikiReader is a fork of [WikiReader by nsh07](https://github.com/nsh07/WikiReader), with an optional paged article reader for Android e-ink devices. See the [e-ink paged-reading requirements and implementation plan](docs/paged-reading-plan.md), including Android Studio setup, device readiness, and emulator/Boox verification gates. Enable **Paged reading** in Settings to use the back/forward arrow buttons or Page Up/Page Down (including Boox volume-key mappings). The expand icon beside the back arrow hides app toolbars, the navigation rail, and system bars; the collapse icon or Back restores them. The counter stays centered in `1 / 5` form. Sections expand automatically and tables reflow as labeled rows. Disable the setting to return to scrolling.
+## Install
 
-- **Fast loading:** The article text is loaded before anything else, so you can get to reading,
-  quick.
-- **Feed:** Read the article of the day, find trending articles and get up to speed on the news with
-  the Wikipedia Feed
-- **Article image:** View an image of the topic from its Wikipedia page. Click on it to enlarge it
-  and view in full-screen
-- **Random article:** Feeling lucky? Click the random article button to read a random article
-- **Choose your language:** Choose from over 300 languages on Wikipedia
-- **Save articles:** Download articles to your device for offline reading
-- **One-handed use:** Use the floating action buttons at the bottom for a complete one-handed
-  experience
-- **Immersive mode:** Hide UI elements while scrolling and enjoy an immersive reading experience
-- **Lightweight:** The app starts instantly, and works smoothly
-- **Material 3 Expressive:** Designed according to the latest Material 3 Expressive design
-  guidelines
-- **Smooth animations:** Smooth and fluent animations
-- **Customizable colors:** Choose from light/dark themes and customize the Material 3 color palette
-- **Customizable font size:** Choose your own comfortable font size
-- **Data saver:** Save your limited data plan by loading text only
-- **Math expressions:** View properly rendered mathematical expressions for easily reading
-  mathematical articles
+Requires **Android 8.0 / API 26 or newer**. Development and device checks have used an Android emulator and an Onyx Boox Page running Android 11.
 
-## Translation
+Download an APK from [this fork's GitHub Releases](https://github.com/ekwoodrich/eWikiReader/releases). Stable releases use version tags such as `v0.99.2` and APK names such as `eWikiReader-v0.99.2.apk`. Signed development builds appear as **prereleases**, with tags such as `dev-9cfe8eb` and APK filenames such as `eWikiReader-dev-9cfe8eb.apk`. You can also track this fork's repository in [Obtainium](https://github.com/ImranR98/Obtainium).
 
-This project is [available on Hosted Weblate](https://hosted.weblate.org/engage/wikireader/) for
-translation.
+Stable releases and signed dev prereleases use the same package, `io.github.ekwoodrich.ewikireader`, and signing key. Installing a newer dev build updates the same app and data; it does not create a separate dev app. Android can reject an older build as a downgrade.
 
-You can contribute to this project even if you are not a developer by helping in
-translating this project into languages you know.
+Local and CI **debug** builds use the separate package `io.github.ekwoodrich.ewikireader.debug`. Older experimental eWikiReader builds and upstream WikiReader also have different package IDs. Their saved data does not migrate automatically. See [application identity and signing](docs/application-identity.md).
 
-<a href="https://hosted.weblate.org/engage/wikireader/">
-<img src="https://hosted.weblate.org/widget/wikireader/horizontal-auto.svg" alt="Translation status" />
-</a>
+Upstream WikiReader's store listings, APKs, and signing fingerprints do not identify this fork. Use this repository's releases for eWikiReader.
 
-## Download
+## Reading on e-ink
 
-Download eWikiReader from this fork's [GitHub releases](https://github.com/ekwoodrich/eWikiReader/releases), or track that repository in Obtainium. The F-Droid and IzzyOnDroid badges above refer to upstream WikiReader, not this fork.
+In **Settings**, enable **Paged reading** in the reader settings group near the bottom. Enable **Use volume buttons to turn pages** if desired, and enable **Disable animations** to reduce motion. The animation setting also works in scrolling mode.
 
-The release application ID is `io.github.ekwoodrich.ewikireader`; development builds use `io.github.ekwoodrich.ewikireader.debug`. These IDs are independent of upstream WikiReader and of the earlier experimental fork builds. See [application identity and signing](docs/application-identity.md) before creating a signed release. Upstream signing fingerprints do not apply to eWikiReader.
+Open an article and use the arrow buttons to turn pages. The expand button beside the controls hides the surrounding UI for more reading space. Use the section navigation to jump within an article. Turn Paged reading off to return to the scrolling interface.
 
-## Donate
+The [implementation report](docs/pagination-implementation-report.md) documents design choices, emulator and physical-device checks, and limitations. The [original plan](docs/paged-reading-plan.md) provides additional requirements and setup context.
 
-You can support WikiReader's development
-through [my GitHub Sponsors page](https://github.com/sponsors/nsh07)
-or [my BuyMeACoffee page](https://coff.ee/nsh07):
+## Development
 
-<a href="https://github.com/sponsors/nsh07">
-  <img src=".github/repo_photos/sponsors.png" width="128px">
-</a>
-<a href="https://coff.ee/nsh07">
-  <img src=".github/repo_photos/bmc_qr.png" width="128px">
-</a>
+Start feature or fix branches from `dev`, integrate work into `dev`, and promote to `main` through a release PR when ready.
 
-## Special Thanks
+| PR target | Label applied before merge | Result after merge |
+| --- | --- | --- |
+| `dev` | `dev-build` | Signed commit-hash dev prerelease |
+| `main` | `release:patch` (or `release`) | Stable patch release |
+| `main` | `release:minor` / `release:major` | Stable minor / major release |
 
-- [Wikimedia Foundation](https://wikimediafoundation.org/): For
-  providing [Wikipedia](https://wikipedia.org), the largest and most-read reference work in history,
-  for free
-- All the Wikipedia volunteers, contributors and donors
+Ordinary pushes and PRs run Android CI and produce debug artifacts. Signed publication requires a matching labeled PR merge. Development publications preserve the latest stable release and do not update the stable changelog.
 
-This app was made possible by the following libraries:
+See [AGENTS.md](AGENTS.md) for project conventions, [workflow details](docs/workflow-plan-v1.md) for signing and release behavior, and the project skills in [.agents/skills](.agents/skills) for dev integration, dev builds, and stable releases.
 
-- [Retrofit 2](https://square.github.io/retrofit/) - REST APIs
-- [OkHttp](https://square.github.io/okhttp/) - Networking
-- [Coil](https://coil-kt.github.io/coil/) - Loading images from the web
-- [MaterialKolor](https://github.com/jordond/MaterialKolor) - For custom color themes
-- [ComposeCharts](https://github.com/ehsannarmani/ComposeCharts) - For the view-count history graph in the feed
-- [Latex2Unicode](https://github.com/tomtung/latex2unicode) - For converting math into Unicode text
+## Upstream credit and license
 
-## Star History
+The original **WikiReader** app was created by **nsh07 and its contributors**. Their work provides the foundation for this fork. Visit the [upstream repository](https://github.com/nsh07/WikiReader) for the original project, its contributors, and its distribution information.
 
-<a href="https://star-history.com/#nsh07/wikireader&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=nsh07/wikireader&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=nsh07/wikireader&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=nsh07/wikireader&type=Date" />
- </picture>
-</a>
+This fork retains the [GNU GPL v3 license](LICENSE). Existing translations originated in upstream; its [Weblate project](https://hosted.weblate.org/engage/wikireader/) belongs to WikiReader, not to this fork. Fork-specific strings may still need translation.
+
+Thanks also to Wikipedia's contributors and the [Wikimedia Foundation](https://wikimediafoundation.org/), and to the libraries used by the app, including [Retrofit](https://square.github.io/retrofit/), [OkHttp](https://square.github.io/okhttp/), [Coil](https://coil-kt.github.io/coil/), [MaterialKolor](https://github.com/jordond/MaterialKolor), [ComposeCharts](https://github.com/ehsannarmani/ComposeCharts), and [LaTeX2Unicode](https://github.com/tomtung/latex2unicode).
+
+## Support the original developer
+
+To support **nsh07's work on the original WikiReader**, visit [nsh07's GitHub Sponsors page](https://github.com/sponsors/nsh07) or [Buy Me a Coffee page](https://coff.ee/nsh07). These donation links support the upstream developer, **not the eWikiReader fork**.

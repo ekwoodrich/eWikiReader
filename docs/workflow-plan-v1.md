@@ -1,83 +1,60 @@
-## Fork Release & Build Implementation Plan (v1)
+# Development and signed-build workflow
 
-### 1. Trigger & Scope
+## Branch flow
 
-* **Event:** Pull request merged into `main` (`pull_request: closed` with `merged == true`).
-* **Condition:** PR contains one of the following labels:
-* `release` or `release:patch` $\rightarrow$ increments Patch.
-* `release:minor` $\rightarrow$ increments Minor.
-* `release:major` $\rightarrow$ increments Major.
+Use `feature/<topic>` / `fix/<topic>` branches from `dev` for work. Integrate WIP and completed task changes into `dev`; use a `dev` → `main` PR when a stable release is ready. Preserve conventional commit subjects for generated stable release notes. Promote `dev` with merge commits and merge the bot's post-release `main` history back into `dev`; do not squash the release PR or force-push shared branches.
 
+Project instructions are in `AGENTS.md`; discoverable project skills live in `.agents/skills/`:
 
-* **Skip Condition:** If no release label is present, the workflow terminates immediately.
+- `ewikireader-merge-dev`: ordinary development integration.
+- `ewikireader-release`: stable release PR and verification.
+- `ewikireader-dev-build`: signed dev prerelease PR and verification.
 
----
+## Triggers
 
-### 2. Version Resolution & Tag Strategy
+`.github/workflows/android.yml` runs on pushes and PRs, builds a debug APK artifact and runs JVM tests. It does not publish a signed release.
 
-* **Tag Format:** `vX.Y.Z-eink` (e.g., `v0.99.0-eink`).
-* **Baseline Fallback:** If no prior tag matching `*eink*` exists, the workflow initializes the baseline as `v0.99.0-eink`.
-* **Tag Discovery:** Query Git tags using a pattern filter (`git tag -l "v*-eink" --sort=-v:refname`) to ignore upstream tags like `v1.2.2`.
-* **SemVer Logic:** Extract the base `X.Y.Z` from the latest tag, increment the target field per the applied PR label, and append `-eink`.
+`.github/workflows/release.yml` (`Signed Build & Publish`) handles PR `closed` events against `main` and `dev`. It only builds when the PR was **merged** and has a matching label **at merge time**:
 
----
+| PR base | Label | Publication |
+| --- | --- | --- |
+| `main` | `release` or `release:patch` | Stable patch |
+| `main` | `release:minor` | Stable minor |
+| `main` | `release:major` | Stable major |
+| `main` | `release:replace` or `release:patch:replace` / `release:minor:replace` / `release:major:replace` | Replace the latest stable release without incrementing its version |
+| `dev` | `dev-build` | Signed dev prerelease |
 
-### 3. Step-by-Step Execution Sequence
+Apply exactly one intended label before merging. Opening a PR, a label added after merge, an unmerged closed PR, an unlabeled merge, or a direct push does not publish a signed build. The workflow serializes signed publishing runs and does not cancel a running publication.
 
-#### Step 1: Full History Checkout
+## Shared build and signing
 
-* Check out the repository using `actions/checkout@v4` with `fetch-depth: 0` to ensure complete commit history and tags are available for version calculations and changelog parsing.
+Both paths check out the exact PR merge commit with full history/tags. This prevents a later branch push from changing which source commit is built. Both run `assembleRelease` with explicit `versionName` and `versionCode`, verify the APK signature before publication, and publish the signed release-variant APK. Neither uses debug signing.
 
-#### Step 2: Version & Changelog Resolution
+Required repository secrets: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Alias is currently `release`, from the local `ekw.jks`. The workflow decodes the keystore into a restricted temporary file, supplies credentials via environment, disables Gradle configuration caching for signing, and deletes the key with `if: always()`. Never log secret values or commit private signing files.
 
-* Parse the label on the merged PR to determine the increment type.
-* Calculate the new version string (`vX.Y.Z-eink`).
-* Generate changelog entries by inspecting commit messages between the previous `*eink*` tag and `HEAD` (`git log <last-tag>..HEAD --pretty=format:"%s"`), filtering for conventional patterns (`feat:`, `fix:`, `chore:`, etc.).
+Both APK types have package `io.github.ekwoodrich.ewikireader` and the same signing certificate; installing dev updates the same app and user data as stable. Version code is `git rev-list --count HEAD`. Preserving branch ancestry and incorporating `main` into `dev` keeps later builds increasing. Android rejects downgrades; do not delete app data as a workaround. Debug builds remain separate at `io.github.ekwoodrich.ewikireader.debug`.
 
-#### Step 3: Compile & Package the APK (Build First)
+## Stable release details
 
-* Run the Gradle build task (e.g., `./gradlew assembleRelease`).
-* Supply Android properties dynamically to keep `versionCode` monotonically increasing:
-* `versionName` $\rightarrow$ `X.Y.Z-eink`
-* `versionCode` $\rightarrow$ Git commit count (`git rev-list --count HEAD`)
+Stable tags, versionNames, and release names use `vX.Y.Z` / `X.Y.Z`; stable APK names are `eWikiReader-vX.Y.Z.apk`. Version selection accepts exact `vMAJOR.MINOR.PATCH` tags and the historical `vMAJOR.MINOR.PATCH-eink` tags, but ignores `dev-*` tags and other tag formats. The initial fallback baseline is `v0.99.0-eink`; the first successful fork release was `v0.99.1-eink`; the next stable release will be `v0.99.2`. Bump precedence for accidentally combined labels is major, minor, then patch; select one label intentionally.
 
+Stable versionName is `X.Y.Z`, GitHub tag and title include `vX.Y.Z`, and APK name is `eWikiReader-vX.Y.Z.apk`. Notes collect non-merge conventional commit subjects since the last stable tag, falling back to all non-merge subjects when necessary. The workflow builds first, then prepends `CHANGELOG.md`, commits it as `chore(release): ... [skip ci]`, pushes `HEAD:main`, tags that changelog commit, and publishes a normal GitHub Release as latest. The built source is the PR merge commit; the tag additionally includes the generated changelog commit. Bot contents-write permission and permission to push `main` are required.
 
-* Rename the output APK to `<AppName>-v<X.Y.Z>-eink.apk`.
-* *Fail-Safe:* Building before tagging prevents polluting the repository with new tags or commits if compilation fails.
+Replacement labels reuse the latest exact stable tag/version (including a historical `-eink` tag if that is still the latest). They do not increment the version. The signed APK is built and verified first; only then does the workflow replace that version's changelog section, update the existing tag to the newly generated changelog commit, and delete/recreate the GitHub Release. The recreated release title and APK filename use the clean `vX.Y.Z` form even if the preserved historical tag includes `-eink`. A failure during release recreation can leave the release temporarily absent; rerun the same replacement PR workflow to restore it.
 
-#### Step 4: Update Repository `CHANGELOG.md`
+## Dev build details
 
-* Prepend the newly generated release notes and current date to the top of the root `CHANGELOG.md`.
-* Leave the upstream metadata directories (e.g., `metadata/en-US/changelogs/`) untouched to prevent future merge conflicts when syncing upstream.
-* Commit the modified `CHANGELOG.md` directly to `main` using `[skip ci]` in the commit message to prevent recursive workflow triggers:
-```bash
-git commit -m "chore(release): update CHANGELOG.md for vX.Y.Z-eink [skip ci]"
-git push origin main
+For a feature PR merged into `dev` with `dev-build`, the workflow uses `git rev-parse --short=7 HEAD`; Git may lengthen the abbreviation for uniqueness. For example:
 
-```
+- Source PR merge commit: `9cfe8eb...`
+- Tag and versionName: `dev-9cfe8eb`
+- APK filename: `eWikiReader-dev-9cfe8eb.apk`
+- Release name: `eWikiReader dev-9cfe8eb`
 
+The tag points directly to the merge commit. Notes identify the full source SHA and changes since the last stable tag. Dev publication is a GitHub **prerelease**, explicitly not latest, and does not bump a stable version or modify `CHANGELOG.md`. The `dev-build` label belongs on the feature PR into `dev`, not the eventual stable PR into `main`.
 
+## Verification and retries
 
-#### Step 5: Tag & Publish
+After merge, monitor the run associated with the PR. Confirm signature verification, tag creation, asset upload, and temporary-key cleanup. Download the actual published APK and inspect signature, package/version and SHA-256 asset digest. Confirm a dev tag targets the merge SHA, prerelease status is set, latest stable is unchanged, and no changelog commit was created; for stable builds verify version bump and conventional changelog entries.
 
-* Tag the newly pushed commit containing the updated `CHANGELOG.md`:
-```bash
-git tag -a "vX.Y.Z-eink" -m "Release vX.Y.Z-eink"
-git push origin "vX.Y.Z-eink"
-
-```
-
-
-* Create a GitHub Release using `softprops/action-gh-release@v2`:
-* **Target Tag:** `vX.Y.Z-eink`
-* **Release Body:** The filtered conventional commit notes.
-* **Assets:** The renamed `.apk` binary.
-
-
-
----
-
-### 4. Critical v1 Setup Requirements
-
-1. **Workflow Permissions:** The workflow job must have `contents: write` and `pull-requests: read` declared.
-2. **Branch Protection:** Ensure the GitHub Actions bot has permission to push commits directly to `main` (either bypass branch protections for workflows or permit the CI bot).
+A successful YAML parse or local test-key build does not validate real GitHub secrets. If a job fails, inspect the failed step without exposing credentials. Before retrying a partially published run, check whether it already pushed a changelog commit/tag or created a release; do not force-replace published artifacts under a different source SHA. Resolve stale branch/push conflicts through normal merges.
