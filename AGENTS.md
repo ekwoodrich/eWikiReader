@@ -15,7 +15,7 @@
 | --- | --- | --- |
 | Android CI (`android.yml`) | Push or PR | Debug APK artifact and JVM tests; no signed release |
 | Signed dev build (`release.yml`) | PR **merged into `dev`**, labeled `dev-build` before merge | Signed GitHub prerelease `dev-<short merge SHA>`, APK `eWikiReader-dev-<SHA>.apk` |
-| Stable patch (`release.yml`) | PR **merged into `main`**, labeled `release:patch` or `release` | Next `vX.Y.Z-eink` release, signed APK, committed `CHANGELOG.md` |
+| Stable patch (`release.yml`) | PR **merged into `main`**, labeled `release:patch` or `release` | Next `vX.Y.Z` release, signed APK, committed `CHANGELOG.md` |
 | Stable minor/major | Same, labeled `release:minor` / `release:major` | Corresponding version bump |
 
 Opening a PR, adding a label after merge, closing it without merge, or pushing `dev` alone does not publish a signed build. Apply one intended build label before merging. Dev builds use the exact PR merge commit hash, have versionName `dev-<SHA>`, do not change `CHANGELOG.md`, and do not replace the latest stable release. Stable and dev publication share one signing/build pipeline. See [workflow details](docs/workflow-plan-v1.md).
