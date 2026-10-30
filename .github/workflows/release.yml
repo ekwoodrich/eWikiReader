@@ -64,7 +64,7 @@ jobs:
               echo "new_tag=${NEW_TAG}"
               echo "version_code=$(git rev-list --count HEAD)"
               echo "apk_name=eWikiReader-${NEW_TAG}.apk"
-              echo "release_name=eWikiReader ${NEW_TAG}"
+              echo "release_name=${NEW_TAG}"
               echo "is_replace=false"
             } >> "$GITHUB_OUTPUT"
             exit 0
@@ -154,7 +154,7 @@ jobs:
             echo "new_tag=${NEW_TAG}"
             echo "version_code=${VERSION_CODE}"
             echo "apk_name=${APK_NAME}"
-            echo "release_name=eWikiReader v${NEW_VERSION}"
+            echo "release_name=v${NEW_VERSION}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 21
