@@ -50,7 +50,7 @@ jobs:
             SHORT_SHA=$(git rev-parse --short=7 HEAD)
             NEW_TAG="dev-${SHORT_SHA}"
             printf 'Development build from commit `%s`.\n\n' "$(git rev-parse HEAD)" > "${RUNNER_TEMP}/release_notes.md"
-            BASE_TAG=$(git tag -l "v*" --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$' || true)
+            BASE_TAG=$(git tag -l "v*" --sort=-v:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$/{print; exit}')
             LOG_RANGE="HEAD"
             if [ -n "$BASE_TAG" ]; then LOG_RANGE="${BASE_TAG}..HEAD"; fi
             git log "$LOG_RANGE" --no-merges --pretty=format:'- %s' >> "${RUNNER_TEMP}/release_notes.md"
@@ -75,7 +75,7 @@ jobs:
             exit 1
           fi
 
-          LAST_TAG=$(git tag -l "v*" --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$' || true)
+          LAST_TAG=$(git tag -l "v*" --sort=-v:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$/{print; exit}')
           if [ -z "$LAST_TAG" ]; then
             echo "No prior *-eink tag found; initializing baseline as v0.99.0-eink"
             LAST_TAG="v0.99.0-eink"
