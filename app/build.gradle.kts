@@ -19,8 +19,8 @@ android {
         applicationId = "org.nsh07.wikireader"
         minSdk = 26
         targetSdk = 36
-        versionCode = 53
-        versionName = "2.5.5"
+        versionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull() ?: 53
+        versionName = providers.gradleProperty("versionName").orNull ?: "2.5.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -37,6 +37,8 @@ android {
             versionNameSuffix = "-eink-dev"
         }
         release {
+            applicationIdSuffix = ".eink"
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
