@@ -13,8 +13,8 @@
 <a href="https://hosted.weblate.org/engage/wikireader/?utm_source=widget">
   <img src="https://img.shields.io/weblate/progress/wikireader?logo=weblate&labelColor=1a1a1a&color=2ecba9">
 </a>
-<a href="https://github.com/nsh07/WikiReader/releases/latest">
-  <img src="https://img.shields.io/github/v/release/nsh07/WikiReader?logo=github&labelColor=1a1a1a">
+<a href="https://github.com/ekwoodrich/eWikiReader/releases/latest">
+  <img src="https://img.shields.io/github/v/release/ekwoodrich/eWikiReader?logo=github&labelColor=1a1a1a">
 </a>
 <a href="https://f-droid.org/packages/org.nsh07.wikireader">
   <img src="https://img.shields.io/f-droid/v/org.nsh07.wikireader?logo=f-droid&labelColor=1a1a1a">
@@ -100,26 +100,9 @@ translating this project into languages you know.
 
 ## Download
 
-- **F-Droid** (recommended): WikiReader is available for download on the
-  official [F-Droid app store repository](https://f-droid.org/). Updates on F-Droid are generally a
-  week late. To get faster updates, you can download WikiReader from
-  the [IzzyOnDroid repository](https://apt.izzysoft.de/fdroid/)
-- **Obtainium** (recommended): You can add this GitHub repository
-  on [Obtainium](https://obtainium.imranr.dev/) to get updates directly from GitHub releases. This
-  is the fastest way to install and update WikiReader.
-- **GitHub releases**: Alternatively, you can manually download and install APKs from
-  the [Releases](https://github.com/nsh07/WikiReader/releases/latest) section of this repo (This
-  method is not recommended, use Obtainium instead).
+Download eWikiReader from this fork's [GitHub releases](https://github.com/ekwoodrich/eWikiReader/releases), or track that repository in Obtainium. The F-Droid and IzzyOnDroid badges above refer to upstream WikiReader, not this fork.
 
-> [!TIP]
-> To [verify](https://developer.android.com/studio/command-line/apksigner#usage-verify) the APK
-> downloaded from Obtainium/GitHub, use the following signing certificate fingerprints:
-> ```
-> SHA1: B1:4E:17:93:11:E8:DB:D5:35:EF:8D:E9:FB:8F:FF:08:F8:EC:65:08
-> SHA256: 07:BE:F3:05:81:BA:EE:8F:45:EC:93:E4:7E:E6:8E:F2:08:74:E5:0E:F5:70:9C:78:B2:EE:67:AC:86:BE:4C:3D
-> ```
-> The SHA256 and MD5 hashes of the individual APK files are also available in the `checksum.txt`
-> file for each release.
+The release application ID is `io.github.ekwoodrich.ewikireader`; development builds use `io.github.ekwoodrich.ewikireader.debug`. These IDs are independent of upstream WikiReader and of the earlier experimental fork builds. See [application identity and signing](docs/application-identity.md) before creating a signed release. Upstream signing fingerprints do not apply to eWikiReader.
 
 ## Donate
 

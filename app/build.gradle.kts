@@ -16,7 +16,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "org.nsh07.wikireader"
+        applicationId = "io.github.ekwoodrich.ewikireader"
         minSdk = 26
         targetSdk = 36
         versionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull() ?: 53
@@ -33,11 +33,10 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".eink.debug"
+            applicationIdSuffix = ".debug"
             versionNameSuffix = "-eink-dev"
         }
         release {
-            applicationIdSuffix = ".eink"
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
