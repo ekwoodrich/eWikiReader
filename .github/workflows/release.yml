@@ -50,7 +50,7 @@ jobs:
             SHORT_SHA=$(git rev-parse --short=7 HEAD)
             NEW_TAG="dev-${SHORT_SHA}"
             printf 'Development build from commit `%s`.\n\n' "$(git rev-parse HEAD)" > "${RUNNER_TEMP}/release_notes.md"
-            BASE_TAG=$(git tag -l "v*-eink" --sort=-v:refname | sed -n '1p')
+            BASE_TAG=$(git tag -l "v*" --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$' || true)
             LOG_RANGE="HEAD"
             if [ -n "$BASE_TAG" ]; then LOG_RANGE="${BASE_TAG}..HEAD"; fi
             git log "$LOG_RANGE" --no-merges --pretty=format:'- %s' >> "${RUNNER_TEMP}/release_notes.md"
@@ -75,7 +75,7 @@ jobs:
             exit 1
           fi
 
-          LAST_TAG=$(git tag -l "v*-eink" --sort=-v:refname | sed -n '1p')
+          LAST_TAG=$(git tag -l "v*" --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-eink)?$' || true)
           if [ -z "$LAST_TAG" ]; then
             echo "No prior *-eink tag found; initializing baseline as v0.99.0-eink"
             LAST_TAG="v0.99.0-eink"
@@ -101,7 +101,7 @@ jobs:
               ;;
           esac
 
-          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}-eink"
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           NEW_TAG="v${NEW_VERSION}"
           VERSION_CODE=$(git rev-list --count HEAD)
           APK_NAME="eWikiReader-${NEW_TAG}.apk"

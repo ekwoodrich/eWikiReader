@@ -28,7 +28,7 @@ The app retains upstream features including Wikipedia search and feeds, saved ar
 
 Requires **Android 8.0 / API 26 or newer**. Development and device checks have used an Android emulator and an Onyx Boox Page running Android 11.
 
-Download an APK from [this fork's GitHub Releases](https://github.com/ekwoodrich/eWikiReader/releases). Stable releases use version tags such as `v0.99.1-eink`. Signed development builds appear as **prereleases**, with tags such as `dev-9cfe8eb` and APK filenames such as `eWikiReader-dev-9cfe8eb.apk`. You can also track this fork's repository in [Obtainium](https://github.com/ImranR98/Obtainium).
+Download an APK from [this fork's GitHub Releases](https://github.com/ekwoodrich/eWikiReader/releases). Stable releases use version tags such as `v0.99.2` and APK names such as `eWikiReader-v0.99.2.apk`. Signed development builds appear as **prereleases**, with tags such as `dev-9cfe8eb` and APK filenames such as `eWikiReader-dev-9cfe8eb.apk`. You can also track this fork's repository in [Obtainium](https://github.com/ImranR98/Obtainium).
 
 Stable releases and signed dev prereleases use the same package, `io.github.ekwoodrich.ewikireader`, and signing key. Installing a newer dev build updates the same app and data; it does not create a separate dev app. Android can reject an older build as a downgrade.
 

@@ -35,9 +35,9 @@ Both APK types have package `io.github.ekwoodrich.ewikireader` and the same sign
 
 ## Stable release details
 
-Stable tags are `vX.Y.Z-eink`; only `v*-eink` tags participate in version selection, so upstream version tags and `dev-*` tags are ignored. The initial fallback baseline is `v0.99.0-eink`; the first successful fork release was `v0.99.1-eink`. Bump precedence for accidentally combined labels is major, minor, then patch; select one label intentionally.
+Stable tags, versionNames, and release names use `vX.Y.Z` / `X.Y.Z`; stable APK names are `eWikiReader-vX.Y.Z.apk`. Version selection accepts exact `vMAJOR.MINOR.PATCH` tags and the historical `vMAJOR.MINOR.PATCH-eink` tags, but ignores `dev-*` tags and other tag formats. The initial fallback baseline is `v0.99.0-eink`; the first successful fork release was `v0.99.1-eink`; the next stable release will be `v0.99.2`. Bump precedence for accidentally combined labels is major, minor, then patch; select one label intentionally.
 
-Stable versionName is `X.Y.Z-eink`, APK name `eWikiReader-vX.Y.Z-eink.apk`. Notes collect non-merge conventional commit subjects since the last stable tag, falling back to all non-merge subjects when necessary. The workflow builds first, then prepends `CHANGELOG.md`, commits it as `chore(release): ... [skip ci]`, pushes `HEAD:main`, tags that changelog commit, and publishes a normal GitHub Release as latest. The built source is the PR merge commit; the tag additionally includes the generated changelog commit. Bot contents-write permission and permission to push `main` are required.
+Stable versionName is `X.Y.Z`, GitHub tag and title include `vX.Y.Z`, and APK name is `eWikiReader-vX.Y.Z.apk`. Notes collect non-merge conventional commit subjects since the last stable tag, falling back to all non-merge subjects when necessary. The workflow builds first, then prepends `CHANGELOG.md`, commits it as `chore(release): ... [skip ci]`, pushes `HEAD:main`, tags that changelog commit, and publishes a normal GitHub Release as latest. The built source is the PR merge commit; the tag additionally includes the generated changelog commit. Bot contents-write permission and permission to push `main` are required.
 
 ## Dev build details
 
