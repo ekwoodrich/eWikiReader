@@ -98,6 +98,10 @@ translating this project into languages you know.
 <img src="https://hosted.weblate.org/widget/wikireader/horizontal-auto.svg" alt="Translation status" />
 </a>
 
+## Development and builds
+
+Work on feature branches from `dev`, integrate into `dev`, and promote to `main` through a release PR. A `dev-build`-labeled PR merged into `dev` publishes a signed commit-hash prerelease; a release-labeled PR merged into `main` publishes a versioned stable release. See [project instructions](AGENTS.md), [workflow details](docs/workflow-plan-v1.md), and the project skills in `.agents/skills/`.
+
 ## Download
 
 Download eWikiReader from this fork's [GitHub releases](https://github.com/ekwoodrich/eWikiReader/releases), or track that repository in Obtainium. The F-Droid and IzzyOnDroid badges above refer to upstream WikiReader, not this fork.
